@@ -2,6 +2,10 @@
 
 # 환경변수 파일
 .env
+.env.*
+!.env.example
+*/.env
+**/.env
 
 # Python 관련
 __pycache__/
