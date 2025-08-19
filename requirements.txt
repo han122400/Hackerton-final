@@ -8,5 +8,4 @@ opencv-python==4.8.1.78
 mediapipe==0.10.7
 numpy==1.24.3
 psycopg2-binary==2.9.9
-PyJWT==2.8.0
 websockets==12.0
