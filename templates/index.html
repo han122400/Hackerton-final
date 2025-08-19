@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>면접 연습 - 메인</title>
+    <link rel="stylesheet" href="styles/globals.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <!-- Navigation -->
+      <nav
+        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
+      >
+        <div class="flex items-center px-4 h-16">
+          <h1 class="text-xl font-semibold">면접 연습</h1>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="max-w-md mx-auto px-6 py-8">
+        <div class="space-y-8">
+          <!-- Welcome Section -->
+          <div class="text-center space-y-4">
+            <h1 class="text-3xl font-bold leading-tight">
+              AI 모의면접으로<br />면접 실력을 키워보세요
+            </h1>
+            <p class="text-base text-muted-foreground leading-relaxed">
+              실제 면접과 같은 환경에서<br />개인 맞춤형 피드백을 받아보세요
+            </p>
+          </div>
+
+          <!-- Feature Cards -->
+          <div class="space-y-4">
+            <div
+              class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="text-2xl mb-2">💼</div>
+              <h3 class="font-semibold mb-2">실시간 피드백</h3>
+              <p class="text-sm text-muted-foreground">
+                면접 중 실시간으로 답변에 대한 피드백을 받을 수 있습니다
+              </p>
+            </div>
+
+            <div
+              class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="text-2xl mb-2">📝</div>
+              <h3 class="font-semibold mb-2">맞춤형 질문</h3>
+              <p class="text-sm text-muted-foreground">
+                지원하는 직무와 회사에 맞는 맞춤형 질문을 제공합니다
+              </p>
+            </div>
+
+            <div
+              class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="text-2xl mb-2">📊</div>
+              <h3 class="font-semibold mb-2">상세한 분석</h3>
+              <p class="text-sm text-muted-foreground">
+                면접 후 상세한 분석 리포트로 개선점을 확인하세요
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-3 pt-4">
+            <button
+              onclick="navigateToUserInput()"
+              class="w-full bg-primary text-primary-foreground py-4 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              면접 시작하기
+            </button>
+
+            <button
+              onclick="navigateToJobList()"
+              class="w-full bg-secondary text-secondary-foreground py-4 px-6 rounded-lg font-semibold hover:bg-secondary/80 transition-colors"
+            >
+              채용공고 보기
+            </button>
+
+            <button
+              onclick="navigateToProfile()"
+              class="w-full border border-border text-foreground py-4 px-6 rounded-lg font-semibold hover:bg-muted transition-colors"
+            >
+              내 정보 입력
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="static/js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>면접 연습 - 공고 상세</title>
+    <link rel="stylesheet" href="styles/globals.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <!-- Navigation -->
+      <nav
+        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
+      >
+        <div class="flex items-center px-4 h-16">
+          <button onclick="goBack()" class="p-2 hover:bg-muted rounded-md mr-3">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold">공고 상세</h1>
+        </div>
+      </nav>
+
+      <main class="max-w-md mx-auto px-6 py-6">
+        <!-- Company Header -->
+        <div class="flex items-start gap-4 pb-6 border-b border-border mb-6">
+          <div
+            id="companyLogo"
+            class="w-15 h-15 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-xl font-semibold flex-shrink-0"
+          >
+            C
+          </div>
+          <div class="flex-1">
+            <h1 id="jobTitle" class="text-xl font-bold mb-1">
+              프론트엔드 개발자
+            </h1>
+            <p id="companyName" class="text-muted-foreground mb-3">회사명</p>
+            <div id="jobTags" class="flex flex-wrap gap-2">
+              <!-- Tags will be added dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Info Grid -->
+        <div class="bg-muted rounded-lg p-4 space-y-3 mb-6">
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-muted-foreground font-medium">위치</span>
+            <span id="jobLocation">서울</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-muted-foreground font-medium">경력</span>
+            <span id="jobExperience">신입/경력</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-muted-foreground font-medium">마감일</span>
+            <span id="jobDeadline">~ 08.31(일)</span>
+          </div>
+        </div>
+
+        <!-- Job Description -->
+        <div class="bg-card border border-border rounded-lg p-5 mb-6">
+          <h3 class="font-semibold mb-4">채용공고 상세</h3>
+          <div
+            id="jobDescriptionContent"
+            class="prose prose-sm max-w-none text-muted-foreground leading-relaxed"
+          >
+            <p>상세한 채용공고 내용이 여기에 표시됩니다.</p>
+          </div>
+        </div>
+
+        <!-- Action Section -->
+        <div class="border-t border-border pt-6">
+          <button
+            onclick="startInterviewWithJob()"
+            class="w-full bg-primary text-primary-foreground py-4 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+          >
+            면접 연습 시작하기
+          </button>
+        </div>
+      </main>
+    </div>
+
+    <script src="static/js/job-detail.js"></script>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>면접 연습 - 개인정보 입력</title>
+    <link rel="stylesheet" href="styles/globals.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <!-- Navigation -->
+      <nav
+        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
+      >
+        <div class="flex items-center px-4 h-16">
+          <button onclick="goBack()" class="p-2 hover:bg-muted rounded-md mr-3">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold">개인정보 입력</h1>
+        </div>
+      </nav>
+
+      <main class="max-w-md mx-auto px-6 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold mb-2">개인정보 입력</h2>
+          <p class="text-muted-foreground">
+            모든 채용공고에 공통으로 사용됩니다
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form id="profileForm" class="space-y-6">
+          <div>
+            <label for="name" class="block font-semibold mb-2">이름 *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full p-4 border border-border rounded-lg bg-input-background"
+              placeholder="이름을 입력해주세요"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block font-semibold mb-2">이메일 *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full p-4 border border-border rounded-lg bg-input-background"
+              placeholder="example@email.com"
+            />
+          </div>
+
+          <div>
+            <label for="phone" class="block font-semibold mb-2">연락처 *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              class="w-full p-4 border border-border rounded-lg bg-input-background"
+              placeholder="010-0000-0000"
+            />
+          </div>
+
+          <div>
+            <label for="education" class="block font-semibold mb-2">학력</label>
+            <select
+              id="education"
+              name="education"
+              class="w-full p-4 border border-border rounded-lg bg-input-background"
+            >
+              <option value="">선택해주세요</option>
+              <option value="고등학교 졸업">고등학교 졸업</option>
+              <option value="전문대학 졸업">전문대학 졸업</option>
+              <option value="대학교 졸업">대학교 졸업</option>
+              <option value="대학원 졸업">대학원 졸업</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="experience" class="block font-semibold mb-2"
+              >경력</label
+            >
+            <input
+              type="text"
+              id="experience"
+              name="experience"
+              class="w-full p-4 border border-border rounded-lg bg-input-background"
+              placeholder="예: 3년"
+            />
+          </div>
+
+          <div>
+            <label for="resume" class="block font-semibold mb-2"
+              >이력서 첨부</label
+            >
+            <input
+              type="file"
+              id="resume"
+              name="resume"
+              accept=".pdf,.doc,.docx"
+              class="w-full p-3 border border-border rounded-lg bg-input-background"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-4">
+            <button
+              type="submit"
+              class="w-full bg-primary text-primary-foreground py-4 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              저장
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <script src="static/js/profile.js"></script>
+  </body>
+</html>

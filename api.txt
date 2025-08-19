@@ -1,0 +1,275 @@
+# Hackerton AI 면접 연습 플랫폼 API 문서
+
+## 기본 정보
+- **Base URL**: `http://localhost:8000`
+- **API Prefix**: `/api`
+- **프로토콜**: HTTP/HTTPS, WebSocket
+
+---
+
+## 📋 목차
+1. [헬스체크 API](#헬스체크-api)
+2. [면접 관련 API](#면접-관련-api)
+3. [프로필 관리 API](#프로필-관리-api)
+4. [카메라 분석 API](#카메라-분석-api)
+5. [웹 페이지 라우팅](#웹-페이지-라우팅)
+
+---
+
+### GET `/api/health`
+면접 서비스 상태와 외부 API 연동 상태를 확인합니다.
+
+**응답:**
+```json
+{
+  "status": "healthy",
+  "openrouter_key_loaded": true,
+  "typecast_key_loaded": true
+}
+```
+
+---
+
+## 🎤 면접 관련 API
+
+### POST `/api/generate-text`
+AI를 사용하여 면접 질문이나 답변을 생성합니다.
+
+**요청 본문:**
+```json
+{
+  "prompt": "면접 질문을 생성해주세요"
+}
+```
+
+**응답:**
+```json
+{
+  "answer": "생성된 AI 텍스트 응답"
+}
+```
+
+**에러 코드:**
+- `400`: 빈 프롬프트 - `EMPTY_PROMPT`
+- `502`: OpenRouter API 오류 - `OPENROUTER_ERROR: {error_message}`
+
+---
+
+### POST `/api/tts`
+텍스트를 음성으로 변환합니다 (Text-to-Speech).
+
+**요청 본문:**
+```json
+{
+  "text": "변환할 텍스트"
+}
+```
+
+**응답:**
+- **Content-Type**: `audio/wav`
+- **Headers**: 
+  - `Accept-Ranges: bytes`
+  - `Cache-Control: no-store`
+- **Body**: WAV 오디오 바이너리 데이터
+
+**TTS 설정:**
+- **음성 ID**: `tc_67c90d6244cf859417f2fff5` (한국어)
+- **모델**: `ssfm-v21`
+- **언어**: 한국어 (`ko`)
+- **감정**: 보통 (`normal`)
+- **볼륨**: 100
+- **템포**: 0.9배속
+
+**에러 코드:**
+- `400`: 빈 텍스트 - `EMPTY_TEXT`
+- `502`: Typecast API 오류 - `TYPECAST_ERROR: {error_message}`
+
+---
+
+## 👤 프로필 관리 API
+
+### POST `/api/save_profile`
+
+**요청 형식**: `application/x-www-form-urlencoded`
+
+**요청 필드:**
+```
+name: 사용자 이름 (필수)
+email: 이메일 주소 (필수)
+phone: 전화번호 (필수)
+birth: 생년월일 (필수)
+address: 주소 (필수)
+job_title: 희망 직무 (필수)
+
+->
+name: 사용자 이름 (필수)
+email: 이메일 주소 (필수)
+phone: 전화번호 (필수)
+education: 학력(필수)
+career: 경력(필수)
+
+```
+
+**응답 (성공):**
+```json
+{
+  "status": "success",
+  "message": "사용자 정보가 저장되었습니다.",
+}
+```
+
+**응답 (실패):**
+```json
+{
+  "status": "error",
+  "message": "오류 메시지"
+}
+```
+
+**데이터베이스:**
+- **테이블**: `user_in.user_info`
+
+---
+
+## 📹 카메라 분석 API
+
+### WebSocket `/api/ws`
+실시간 얼굴 분석을 위한 WebSocket 연결입니다.
+
+**연결 URL**: `ws://localhost:8000/api/ws`
+
+**데이터 전송:**
+- **형식**: 바이너리 (이미지 데이터)
+- **인코딩**: JPEG/PNG → numpy bytes
+
+**수신 데이터:**
+```json
+{
+  "ok": true,
+  "result": {
+    "face_detected": true,
+    "eye_aspect_ratio": 0.25,
+    "mouth_aspect_ratio": 0.15,
+    "gaze_direction": "center",
+    "face_position": "center",
+    "confidence": 0.95
+  }
+}
+```
+
+**에러 응답:**
+```json
+{
+  "ok": false,
+  "err": "decode_fail"
+}
+```
+
+**분석 항목:**
+1. **얼굴 인식**: MediaPipe Face Mesh 사용
+2. **눈 깜빡임**: Eye Aspect Ratio (EAR) 계산
+3. **입 움직임**: Mouth Aspect Ratio (MAR) 계산  
+4. **시선 방향**: 홍채 위치 기반 시선 추적
+5. **얼굴 위치**: 화면 내 얼굴 위치 분석
+
+---
+
+## 🌐 웹 페이지 라우팅
+
+### GET `/`
+메인 홈페이지를 반환합니다.
+
+**응답**: `templates/index.html`
+
+### 정적 파일
+- **경로**: `/static/*`
+- **디렉토리**: `static/`
+- **포함**: CSS, JavaScript, 이미지 파일
+
+---
+
+## 🚀 서버 실행
+
+```bash
+# 의존성 설치
+pip install -r requirements.txt
+
+# 환경변수 설정
+cp .env.example .env
+# .env 파일을 편집하여 실제 값 입력
+
+# 서버 실행
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+---
+
+## 📝 사용 예시
+
+### JavaScript에서 API 호출
+```javascript
+// 텍스트 생성
+const response = await fetch('/api/generate-text', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: '면접 질문을 만들어주세요' })
+});
+const data = await response.json();
+
+// WebSocket 연결 (카메라 분석)
+const ws = new WebSocket('ws://localhost:8000/api/ws');
+ws.onmessage = (event) => {
+    const result = JSON.parse(event.data);
+    console.log('분석 결과:', result);
+};
+```
+
+### 프로필 저장
+```javascript
+const formData = new FormData();
+formData.append('name', '홍길동');
+formData.append('email', 'hong@example.com');
+formData.append('phone', '010-1234-5678');
+formData.append('birth', '1990-01-01');
+formData.append('address', '서울시 강남구');
+formData.append('job_title', '소프트웨어 개발자');
+
+const response = await fetch('/api/save_profile', {
+    method: 'POST',
+    body: formData
+});
+```
+
+---
+
+## 🔐 보안 고려사항
+
+1. **환경변수**: API 키와 시크릿은 환경변수로 관리
+2. **JWT**: 토큰 기반 인증 (24시간 만료)
+3. **CORS**: 모든 도메인 허용 (개발용, 프로덕션에서는 제한 필요)
+4. **데이터베이스**: PostgreSQL 연결 정보 보호
+5. **.gitignore**: 민감한 파일 Git 추적 제외
+
+---
+
+## 📊 응답 형식
+
+모든 API는 JSON 형식으로 응답하며, 다음과 같은 일반적인 구조를 따릅니다:
+
+**성공 응답:**
+```json
+{
+  "status": "success",
+  "data": { ... },
+  "message": "성공 메시지"
+}
+```
+
+**에러 응답:**
+```json
+{
+  "status": "error", 
+  "error_code": "ERROR_TYPE",
+  "message": "오류 설명"
+}
+```

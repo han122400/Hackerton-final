@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>면접 연습 - 자기소개서 작성</title>
+    <link rel="stylesheet" href="styles/globals.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <!-- Navigation -->
+      <nav
+        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
+      >
+        <div class="flex items-center px-4 h-16">
+          <button onclick="goBack()" class="p-2 hover:bg-muted rounded-md mr-3">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold">자기소개서 작성</h1>
+        </div>
+      </nav>
+
+      <main class="max-w-md mx-auto px-6 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold mb-2">자기소개서 작성</h2>
+          <p class="text-muted-foreground">
+            <span id="selectedJobTitle">선택된 공고</span>에 맞는 자기소개서를
+            작성해주세요
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form id="coverLetterForm" class="space-y-6">
+          <div>
+            <label for="coverLetter" class="block font-semibold mb-2"
+              >자기소개서 *</label
+            >
+            <textarea
+              id="coverLetter"
+              name="coverLetter"
+              rows="12"
+              class="w-full p-4 border border-border rounded-lg bg-input-background resize-none"
+              placeholder="지원동기와 본인의 역량을 어필해주세요..."
+              required
+              oninput="updateCharCount()"
+            ></textarea>
+            <div class="text-xs text-muted-foreground text-right mt-1">
+              <span id="charCount">0</span> / 1000자
+            </div>
+          </div>
+
+          <div>
+            <label for="portfolio" class="block font-semibold mb-2"
+              >포트폴리오 첨부</label
+            >
+            <input
+              type="file"
+              id="portfolio"
+              name="portfolio"
+              accept=".pdf,.zip,.png,.jpg"
+              class="w-full p-3 border border-border rounded-lg bg-input-background"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              onclick="saveCoverLetter()"
+              class="flex-1 bg-secondary text-secondary-foreground py-3 px-6 rounded-lg font-semibold hover:bg-secondary/80 transition-colors"
+            >
+              임시저장
+            </button>
+            <button
+              type="submit"
+              class="flex-1 bg-primary text-primary-foreground py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              면접 시작
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <script src="static/js/cover-letter.js"></script>
+  </body>
+</html>
