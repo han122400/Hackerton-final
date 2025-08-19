@@ -1,6 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./templates/**/*.html", "./js/**/*.js"],
+// tailwind.config.js (v4용)
+export default {
+  content: ["./templates/**/*.html", "./static/js/**/*.js"],
   theme: {
     extend: {
       colors: {
@@ -32,5 +32,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [], // v4는 @tailwindcss/forms 필요 없음
 };

@@ -1,18 +1,21 @@
 {
   "name": "Hackerton-final",
   "version": "1.0.0",
+  "description": "Hackerton Final Project - Frontend with Tailwind v4",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:css": "tailwindcss -i ./static/styles/globals.css -o ./static/styles/output.css --watch",
+    "build:css": "tailwindcss -i ./static/styles/globals.css -o ./static/styles/output.css --minify",
+    "test": "echo \"No test specified\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "hackerton",
+    "tailwindcss",
+    "frontend"
+  ],
+  "author": "iminhyeong",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "tailwindcss": "^4.1.12"
-  },
-  "dependencies": {
-    "@tailwindcss/forms": "^0.5.10"
   }
 }
