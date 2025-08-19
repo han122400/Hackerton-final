@@ -2,19 +2,19 @@
 
 // 페이지 네비게이션 함수들
 function navigateToUserInput() {
-  window.location.href = "./user-input.html";
+  window.location.href = '/user-input'
 }
 
 function navigateToJobList() {
-  window.location.href = "job-list.html";
+  window.location.href = '/job-list'
 }
 
 function navigateToProfile() {
-  window.location.href = "profile.html";
+  window.location.href = '/profile'
 }
 
 // 페이지 로드 시 초기화
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // 메인 페이지는 특별한 초기화가 필요하지 않음
-  console.log("메인 페이지 로드 완료");
-});
+  console.log('메인 페이지 로드 완료')
+})
