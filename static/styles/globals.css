@@ -190,8 +190,121 @@
       line-height: 1.5;
     }
   }
+
+  /* 다크모드 설정을 base 레이어로 이동 */
+  .dark {
+    @apply bg-background;
+    color: var(--foreground);
+  }
 }
 
 html {
   font-size: var(--font-size);
+}
+
+/* ===== Design System (Tailwind v4) ===== */
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* 페이지 공통 컨테이너 */
+  .page {
+    @apply max-w-full mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* 반응형 카드 */
+  .card {
+    @apply bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-lg transition;
+    @apply sm:p-8 lg:p-10; /* 여백을 화면 크기에 따라 조정 */
+  }
+
+  /* 반응형 버튼 */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-semibold py-3 px-5 shadow;
+    @apply sm:py-4 sm:px-6 lg:py-5 lg:px-8; /* 버튼 크기 조정 */
+  }
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground hover:opacity-90;
+  }
+  .btn-secondary {
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+  .btn-outline {
+    @apply btn border border-border text-foreground hover:bg-muted;
+  }
+
+  /* 반응형 제목 */
+  .section-title {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+  }
+  .section-sub {
+    @apply text-muted-foreground leading-relaxed;
+  }
+
+  /* 반응형 입력 필드 */
+  .input,
+  .select,
+  .textarea {
+    @apply w-full p-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply sm:p-4 lg:p-5; /* 입력 필드 크기 조정 */
+    background-color: var(--input-background);
+  }
+
+  /* 반응형 채용공고 상세 스타일 */
+  .job-detail {
+    @apply border border-border rounded-xl p-5 shadow-md;
+    @apply sm:p-6 lg:p-8; /* 여백 조정 */
+    background-color: var(--card);
+  }
+
+  .job-detail-title {
+    @apply text-lg sm:text-xl lg:text-2xl font-bold text-primary mb-4;
+  }
+
+  .job-detail-subtitle {
+    @apply text-base sm:text-lg lg:text-xl font-medium text-secondary mb-2;
+  }
+
+  .job-detail-content {
+    @apply text-sm sm:text-base lg:text-lg text-foreground leading-relaxed;
+  }
+
+  .job-detail-section {
+    @apply mb-4 sm:mb-6 lg:mb-8;
+  }
+
+  .job-detail-highlight {
+    @apply text-primary font-semibold;
+  }
+}
+
+@layer utilities {
+  /* 반응형 유틸리티 클래스 */
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-secondary {
+    color: var(--secondary);
+  }
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-secondary {
+    background-color: var(--secondary);
+  }
+
+  /* 반응형 텍스트 크기 */
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  /* 반응형 여백 */
+  .spacing-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
 }

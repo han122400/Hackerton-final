@@ -154,12 +154,49 @@
 
         <!-- Job List -->
         <div id="jobList" class="px-4 py-4 space-y-4">
-          <!-- Jobs will be dynamically generated -->
+          {% if jobs %} {% for job in jobs %}
+          <div
+            class="bg-card border border-border rounded-lg p-4 hover:shadow-sm transition cursor-pointer"
+            onclick="openJobDetail('{{ job.empSeqno }}')"
+            data-job-id="{{ job.empSeqno }}"
+          >
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-semibold">{{ job.title }}</h3>
+                <p class="text-sm text-muted-foreground mt-1">
+                  {{ job.company }}
+                </p>
+              </div>
+              <span class="text-xs text-muted-foreground"
+                >{{ job.endDate }}</span
+              >
+            </div>
+            <div class="text-xs text-muted-foreground mt-2">
+              {{ job.region }}
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <p class="text-center text-muted-foreground">
+            채용공고를 불러오는 중입니다...
+          </p>
+          {% endif %}
         </div>
+
+        <script>
+          function openJobDetail(empSeqno) {
+            if (!empSeqno) return;
+            location.href = `/job-detail?id=${empSeqno}`;
+          }
+        </script>
       </main>
     </div>
 
+    <script src="/static/js/api.js"></script>
     <script src="/static/js/data.js"></script>
+    <script>
+      // JSON.stringify를 사용하여 안전하게 데이터 전달
+      window.serverJobs = {{ jobs|tojson|safe }};
+    </script>
     <script src="/static/js/job_list.js"></script>
   </body>
 </html>
