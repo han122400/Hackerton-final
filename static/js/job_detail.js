@@ -1,237 +1,137 @@
-// 채용공고 상세 페이지 JavaScript
-
-// URL에서 id 파라미터 가져오기
+// URL 파라미터
 function getJobId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id");
+  return new URLSearchParams(location.search).get("id");
 }
-
-// 뒤로가기
 function goBack() {
   location.href = "/job-list";
 }
 
-// 마크다운 파서
-function parseMarkdown(markdown) {
-  return markdown
-    .replace(
-      /^# (.*$)/gim,
-      '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>'
-    )
-    .replace(
-      /^## (.*$)/gim,
-      '<h4 class="text-base font-semibold mt-3 mb-2">$1</h4>'
-    )
-    .replace(/\*\*(.*)\*\*/gim, "<strong>$1</strong>")
-    .replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>')
-    .replace(
-      /(<li.*<\/li>)/gims,
-      '<ul class="list-disc space-y-1 mb-3">$1</ul>'
-    )
-    .replace(/\n\n/gim, '</p><p class="mb-3">')
-    .replace(/\n/gim, "<br>");
+// 간단 마크다운 변환 → Bootstrap 타이포 스타일에 맞춰 최소 변환
+function md(markdown) {
+  if (!markdown) return "";
+  let html = markdown
+    .replace(/^### (.*$)/gim, '<h5 class="fw-semibold mt-4 mb-2">$1</h5>')
+    .replace(/^## (.*$)/gim, '<h5 class="fw-semibold mt-4 mb-2">$1</h5>')
+    .replace(/^# (.*$)/gim, '<h4 class="fw-bold mt-4 mb-2">$1</h4>')
+    .replace(/^\- (.*$)/gim, "<li>$1</li>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n$/gim, "<br/>");
+  // <li> wrap
+  html = html.replace(
+    /(<li>.*<\/li>)/gis,
+    '<ul class="list-unstyled ps-3 mb-2">$1</ul>'
+  );
+  return html;
 }
 
-// 상세 정보 렌더링
-async function renderJobDetail() {
-  const empSeqno = getJobId();
-  if (!empSeqno) {
+async function loadJobDetail() {
+  const id = getJobId();
+  if (!id) {
     alert("잘못된 접근입니다.");
     location.href = "/job-list";
     return;
   }
 
-  try {
-    const response = await fetch(`/api/jobs/${empSeqno}`);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const job = window.API?.getJobDetail
+    ? await window.API.getJobDetail(id)
+    : await fetch(`/api/jobs/${encodeURIComponent(id)}`)
+        .then((r) => r.json())
+        .then((j) => j.item);
 
-    const data = await response.json();
-    console.log("API Response:", data); // 디버깅용 로그 추가
+  // 헤더
+  const logoWrap = document.getElementById("companyLogo");
+  if (job.company_logo) {
+    logoWrap.innerHTML = `<img src="${job.company_logo}" alt="${
+      job.company || ""
+    }" style="width:100%;height:100%;object-fit:contain">`;
+  } else {
+    logoWrap.innerHTML = `<span class="text-primary fw-bold fs-3">${(
+      job.company || "C"
+    ).slice(0, 1)}</span>`;
+  }
+  document.getElementById("jobTitle").textContent =
+    job.title || job.empWantedTitle || "-";
+  document.getElementById("jobCompany").textContent =
+    job.company || job.empBusiNm || "-";
 
-    if (!data.ok || !data.item) throw new Error("데이터를 찾을 수 없습니다.");
+  // 위치/마감
+  const regionText =
+    job.region ||
+    [job.region1, job.region2].filter(Boolean).join(" ") ||
+    job.workRegionNm ||
+    "지역 정보 없음";
+  document.getElementById("jobLocation").textContent = regionText;
+  const deadlineTxt = job.endDate
+    ? `~${job.endDate.slice(4, 6)}.${job.endDate.slice(6, 8)}`
+    : "상시채용";
+  document.getElementById("jobDeadline").textContent = deadlineTxt;
 
-    const job = data.item;
-    const raw = job.raw || {};
+  // 지원 버튼
+  const applyHref = job.apply_url || job.empWantedHomepg || "#";
+  document.getElementById("applyButton").href = applyHref;
+  document.getElementById("applyButtonMobile").href = applyHref;
 
-    // 기본 정보 업데이트
-    const updateElement = (id, value) => {
-      const element = document.getElementById(id);
-      if (element) {
-        element.textContent = value || "-";
+  // 태그
+  const tagsWrap = document.getElementById("jobTags");
+  const pills = [];
+  if (job.employmentType) pills.push(job.employmentType);
+  if (job.employment_status) pills.push(job.employment_status);
+  if (Array.isArray(job.tags)) pills.push(...job.tags);
+  tagsWrap.innerHTML = pills.length
+    ? pills
+        .map((t) => `<span class="badge text-bg-light border">${t}</span>`)
+        .join("")
+    : `<span class="text-secondary">태그 정보 없음</span>`;
+
+  // 본문(모집 요약/분야/지원자격/우대/전형/유의/첨부 등)
+  let descriptionContent = "";
+
+  if (job.recruitment_summary)
+    descriptionContent += `# 모집 요약\n${job.recruitment_summary}\n\n`;
+
+  if (job.recruitment_info && job.recruitment_info.length) {
+    job.recruitment_info.forEach((info) => {
+      descriptionContent += `# ${info.title || "모집분야"}\n`;
+      if (info.job_description)
+        descriptionContent += `## 직무내용\n${info.job_description}\n\n`;
+      if (info.work_location)
+        descriptionContent += `## 근무지역\n${info.work_location}\n\n`;
+      if (info.career || info.education || info.other_requirements) {
+        descriptionContent += `## 자격요건\n`;
+        if (info.career) descriptionContent += `- 경력: ${info.career}\n`;
+        if (info.education) descriptionContent += `- 학력: ${info.education}\n`;
+        if (info.other_requirements)
+          descriptionContent += `- 기타: ${info.other_requirements}\n`;
+        descriptionContent += `\n`;
       }
-    };
+      if (info.headcount)
+        descriptionContent += `## 모집인원\n${info.headcount}명\n\n`;
+      if (info.note) descriptionContent += `## 비고\n${info.note}\n\n`;
+    });
+  }
 
-    // 기본 정보 업데이트
-    updateElement("jobTitle", job.title);
-    updateElement("companyName", job.company_name);
-    updateElement("companyType", job.company_type);
-    updateElement("companyLogo", (job.company_name?.[0] || "C").toUpperCase());
+  if (job.qualification)
+    descriptionContent += `# 지원자격\n${job.qualification}\n\n`;
+  if (job.preferred) descriptionContent += `# 우대사항\n${job.preferred}\n\n`;
+  if (job.selection_process)
+    descriptionContent += `# 전형절차\n${job.selection_process}\n\n`;
+  if (job.caution) descriptionContent += `# 유의사항\n${job.caution}\n\n`;
 
-    // 상세 설명 구성
-    let descriptionContent = "";
-
-    // 모집 요약 정보
-    if (job.recruitment_summary) {
-      descriptionContent += `# 모집 요약\n${job.recruitment_summary}\n\n`;
-    }
-
-    // 모집 분야별 상세 정보
-    if (job.recruitment_info && job.recruitment_info.length > 0) {
-      job.recruitment_info.forEach((info) => {
-        descriptionContent += `# ${info.title || "모집분야"}\n`;
-        if (info.job_description)
-          descriptionContent += `## 직무내용\n${info.job_description}\n\n`;
-        if (info.work_location)
-          descriptionContent += `## 근무지역\n${info.work_location}\n\n`;
-        if (info.career || info.education) {
-          descriptionContent += `## 자격요건\n`;
-          if (info.career) descriptionContent += `- 경력: ${info.career}\n`;
-          if (info.education)
-            descriptionContent += `- 학력: ${info.education}\n`;
-          if (info.other_requirements)
-            descriptionContent += `- 기타: ${info.other_requirements}\n`;
-          descriptionContent += "\n";
-        }
-      });
-    }
-
-    // 공통 지원자격
-    if (job.common_requirements) {
-      descriptionContent += `# 공통 지원자격\n${job.common_requirements}\n\n`;
-    }
-
-    // 전형절차
-    if (job.selection_steps && job.selection_steps.length > 0) {
-      descriptionContent += `# 전형절차\n`;
-      job.selection_steps.forEach((step, index) => {
-        descriptionContent += `## ${step.name || `${index + 1}차 전형`}\n`;
-        if (step.details) descriptionContent += `${step.details}\n`;
-        if (step.schedule) descriptionContent += `- 일정: ${step.schedule}\n`;
-        if (step.note) descriptionContent += `- 비고: ${step.note}\n`;
-        descriptionContent += "\n";
-      });
-    }
-
-    // 지원방법
-    if (job.application_method) {
-      descriptionContent += `# 지원방법\n${job.application_method}\n\n`;
-    }
-
-    // 제출서류
-    if (job.required_docs) {
-      descriptionContent += `# 제출서류\n${job.required_docs}\n\n`;
-    }
-
-    // 기타사항
-    if (job.other_info) {
-      descriptionContent += `# 기타사항\n${job.other_info}\n\n`;
-    }
-
-    // 마크다운으로 변환하여 렌더링
-    const descriptionElement = document.getElementById("jobDescriptionContent");
-    if (descriptionElement) {
-      descriptionElement.innerHTML = parseMarkdown(descriptionContent);
-    }
-
-    // 채용 모집 정보 렌더링
-    const recrContent = document.getElementById("jobRecruitmentInfo");
-    if (recrContent && job.recruitment_info.length > 0) {
-      recrContent.innerHTML = job.recruitment_info
-        .map(
-          (info) => `
-        <div class="border rounded-lg p-4 mb-4">
-          <h4 class="font-semibold text-lg mb-2">${
-            info.title || "모집분야"
-          }</h4>
-          <ul class="space-y-2">
-            <li>직무내용: ${info.job_description || "-"}</li>
-            <li>근무지역: ${info.work_location || "-"}</li>
-            <li>자격요건: ${info.career || "-"} / ${info.education || "-"}</li>
-            <li>기타요건: ${info.other_requirements || "-"}</li>
-            <li>모집인원: ${info.headcount || "-"}명</li>
-            ${info.note ? `<li>비고: ${info.note}</li>` : ""}
-          </ul>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    // 전형 단계 정보 렌더링
-    const stepsContent = document.getElementById("jobSelectionSteps");
-    if (stepsContent && job.selection_steps.length > 0) {
-      stepsContent.innerHTML = job.selection_steps
-        .map(
-          (step, index) => `
-        <div class="flex items-start space-x-4 mb-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">
-            ${index + 1}
-          </div>
-          <div>
-            <h5 class="font-semibold">${step.name || `${index + 1}차 전형`}</h5>
-            <p>${step.details || "-"}</p>
-            <p class="text-sm text-gray-600">일정: ${
-              step.schedule || "미정"
-            }</p>
-            ${
-              step.note
-                ? `<p class="text-sm text-gray-500">비고: ${step.note}</p>`
-                : ""
-            }
-          </div>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    // 면접 데이터 저장
-    window.__selectedJob = {
-      id: job.id,
-      title: job.title,
-      company_name: job.company_name,
-      employment_type: job.employment_type,
-      recruitment_info: job.recruitment_info,
-      common_requirements: job.common_requirements,
-    };
-  } catch (error) {
-    console.error("상세 에러:", error);
-    const container = document.querySelector(".container");
-    if (container) {
-      container.innerHTML = `
-        <div class="text-center py-10">
-          <h2 class="text-xl mb-4">데이터를 불러오는데 실패했습니다</h2>
-          <button onclick="location.reload()" class="px-4 py-2 bg-blue-500 text-white rounded">
-            새로고침
-          </button>
-        </div>
-      `;
+  // 첨부파일 (워크넷 등)
+  if (job.raw && job.raw.regFileList) {
+    const list = Array.isArray(job.raw.regFileList.regFileListInfo)
+      ? job.raw.regFileList.regFileListInfo
+      : [job.raw.regFileList.regFileListInfo];
+    if (list && list.length) {
+      descriptionContent += `# 첨부파일\n`;
+      descriptionContent +=
+        list.map((f) => `- ${f.regFileNm || "첨부파일"}`).join("\n") + "\n\n";
     }
   }
+
+  document.getElementById("jobDescriptionContent").innerHTML = md(
+    descriptionContent || "상세 내용이 없습니다."
+  );
 }
 
-// 면접 시작
-function startInterviewWithJob() {
-  const payload = window.__selectedJob;
-  if (!payload) {
-    alert("상세 정보가 없습니다.");
-    return;
-  }
-  localStorage.setItem("selectedJob", JSON.stringify(payload));
-  location.href = "/user-input";
-}
-
-// 페이지 로드 시 실행
-document.addEventListener("DOMContentLoaded", renderJobDetail);
-function startInterviewWithJob() {
-  const payload = window.__selectedJob;
-  if (!payload) {
-    alert("상세 정보가 없습니다.");
-    return;
-  }
-  localStorage.setItem("selectedJob", JSON.stringify(payload));
-  location.href = "/user-input";
-}
-
-// 페이지 로드 시 실행
-document.addEventListener("DOMContentLoaded", renderJobDetail);
+document.addEventListener("DOMContentLoaded", loadJobDetail);

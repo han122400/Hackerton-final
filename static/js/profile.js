@@ -1,69 +1,47 @@
-// 개인정보 입력 페이지 JavaScript
-
-// 뒤로가기
 function goBack() {
-  window.location.href = '/'
+  location.href = "/";
 }
 
-// 토스트 메시지 표시
-function showToast(message, type = 'success') {
-  const toast = document.createElement('div')
-  toast.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm font-medium z-50 ${
-    type === 'success'
-      ? 'bg-green-600 text-white'
-      : type === 'error'
-      ? 'bg-red-600 text-white'
-      : 'bg-gray-600 text-white'
-  }`
-  toast.textContent = message
-
-  document.body.appendChild(toast)
-
-  setTimeout(() => {
-    toast.remove()
-  }, 3000)
+function showToast(message, type = "success") {
+  const wrap = document.createElement("div");
+  wrap.className = "position-fixed top-0 start-50 translate-middle-x mt-3 z-3";
+  wrap.innerHTML = `<div class="alert alert-${
+    type === "error" ? "danger" : type
+  } shadow">${message}</div>`;
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 2000);
 }
 
-// 폼 제출 처리
+// 저장
 function handleFormSubmit(e) {
-  e.preventDefault()
-
-  const formData = new FormData(e.target)
-  const profileData = {
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    education: formData.get('education'),
-    experience: formData.get('experience'),
-    resume: formData.get('resume') ? formData.get('resume').name : null,
-    savedAt: new Date().toISOString(),
-  }
-
-  localStorage.setItem('profileData', JSON.stringify(profileData))
-  showToast('개인정보가 저장되었습니다.', 'success')
-
-  setTimeout(() => {
-    goBack()
-  }, 1500)
+  e.preventDefault();
+  const data = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    education: document.getElementById("education").value.trim(),
+    experience: document.getElementById("experience").value.trim(),
+  };
+  localStorage.setItem("profileData", JSON.stringify(data));
+  showToast("저장되었습니다.", "success");
 }
 
-// 프로필 데이터 로드
 function loadProfileData() {
-  const savedData = localStorage.getItem('profileData')
-  if (savedData) {
-    const data = JSON.parse(savedData)
-    document.getElementById('name').value = data.name || ''
-    document.getElementById('email').value = data.email || ''
-    document.getElementById('phone').value = data.phone || ''
-    document.getElementById('education').value = data.education || ''
-    document.getElementById('experience').value = data.experience || ''
-  }
+  const raw = localStorage.getItem("profileData");
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    document.getElementById("name").value = data.name || "";
+    document.getElementById("email").value = data.email || "";
+    document.getElementById("phone").value = data.phone || "";
+    document.getElementById("education").value = data.education || "";
+    document.getElementById("experience").value = data.experience || "";
+  } catch (e) {}
 }
 
-// 페이지 초기화
-document.addEventListener('DOMContentLoaded', function () {
-  loadProfileData()
+document.addEventListener("DOMContentLoaded", () => {
+  loadProfileData();
   document
-    .getElementById('profileForm')
-    .addEventListener('submit', handleFormSubmit)
-})
+    .getElementById("profileForm")
+    .addEventListener("submit", handleFormSubmit);
+});

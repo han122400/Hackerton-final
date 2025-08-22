@@ -4,92 +4,101 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>면접 연습 - 메인</title>
-    <link rel="stylesheet" href="/static/styles/output.css" />
+    <link rel="stylesheet" href="/static/styles/bootstrap.min.css" />
   </head>
-
-  <body class="min-h-screen bg-gradient-to-b from-background to-muted/30">
-    <!-- Header -->
-    <nav
-      class="sticky top-0 z-50 bg-background/90 backdrop-blur border-b border-border shadow-sm"
-    >
-      <div class="page h-16 flex items-center justify-between">
-        <h1 class="text-2xl font-bold tracking-tight">면접 연습</h1>
-        <div
-          class="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground"
+  <body class="bg-light">
+    <!-- NAV -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+      <div class="container-xxl">
+        <a class="navbar-brand fw-bold" href="/">면접 연습</a>
+        <button
+          class="navbar-toggler"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMain"
         >
-          <a href="#" class="hover:text-foreground transition">도움말</a>
-          <a href="#" class="hover:text-foreground transition">문의하기</a>
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navMain" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto gap-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/job-list">채용공고</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/user-input">면접 입력</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/profile">개인정보</a>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Main -->
-    <main class="page py-16">
-      <div class="space-y-16">
-        <!-- Hero -->
-        <section class="text-center space-y-6">
-          <h2
-            class="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight"
-          >
-            AI 모의면접으로<br />면접 실력을 키워보세요
-          </h2>
-          <p
-            class="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto"
-          >
-            실제 면접과 같은 환경에서 개인 맞춤형 피드백을 받아보고<br />
-            취업 준비에 한 걸음 더 다가가세요
-          </p>
-        </section>
-
-        <!-- Features -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <article class="card">
-            <div class="text-5xl mb-4">💼</div>
-            <h3 class="font-semibold text-xl mb-3">실시간 피드백</h3>
-            <p class="text-sm text-muted-foreground">
-              면접 중 실시간으로 답변에 대한 피드백을 받을 수 있습니다
+    <!-- HERO -->
+    <header class="bg-white border-bottom">
+      <div class="container-xxl py-5">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-7">
+            <h1 class="display-6 fw-bold mb-3">
+              AI 기반 면접 준비, 더 간단하게
+            </h1>
+            <p class="text-secondary mb-4">
+              실시간 피드백 · 맞춤형 질문 · 모의 면접까지 한 번에.
             </p>
-          </article>
+            <div class="d-flex gap-2">
+              <a href="/job-list" class="btn btn-primary">채용공고 보러가기</a>
+              <a href="/user-input" class="btn btn-outline-secondary"
+                >면접 연습 시작</a
+              >
+            </div>
+          </div>
+          <div class="col-lg-5 text-center">
+            <div class="p-5 rounded-4 bg-light border">🎤</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-          <article class="card">
-            <div class="text-5xl mb-4">📝</div>
-            <h3 class="font-semibold text-xl mb-3">맞춤형 질문</h3>
-            <p class="text-sm text-muted-foreground">
-              지원하는 직무와 회사에 맞는 맞춤형 질문을 제공합니다
-            </p>
+    <!-- FEATURES -->
+    <main class="container-xxl py-5">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <article class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="fs-1 mb-3">💼</div>
+              <h3 class="h5 fw-semibold mb-2">실시간 피드백</h3>
+              <p class="text-secondary small mb-0">
+                답변 품질을 즉시 점검하고 개선점을 제안합니다.
+              </p>
+            </div>
           </article>
-
-          <article class="card">
-            <div class="text-5xl mb-4">📊</div>
-            <h3 class="font-semibold text-xl mb-3">상세한 분석</h3>
-            <p class="text-sm text-muted-foreground">
-              면접 후 상세한 분석 리포트로 개선점을 확인하세요
-            </p>
+        </div>
+        <div class="col-md-4">
+          <article class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="fs-1 mb-3">📝</div>
+              <h3 class="h5 fw-semibold mb-2">맞춤형 질문</h3>
+              <p class="text-secondary small mb-0">
+                직무·경력에 맞춘 질문 세트를 자동 생성합니다.
+              </p>
+            </div>
           </article>
-        </section>
-
-        <!-- Actions -->
-        <section class="flex flex-col md:flex-row justify-center gap-6 pt-2">
-          <button onclick="navigateToUserInput()" class="btn-primary flex-1">
-            면접 시작하기
-          </button>
-          <button onclick="navigateToJobList()" class="btn-secondary flex-1">
-            채용공고 보기
-          </button>
-          <button onclick="navigateToProfile()" class="btn-outline flex-1">
-            내 정보 입력
-          </button>
-        </section>
+        </div>
+        <div class="col-md-4">
+          <article class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="fs-1 mb-3">📈</div>
+              <h3 class="h5 fw-semibold mb-2">성과 추적</h3>
+              <p class="text-secondary small mb-0">
+                연습 기록을 구조화하여 점수와 피드백을 보관합니다.
+              </p>
+            </div>
+          </article>
+        </div>
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer
-      class="border-t border-border py-8 text-center text-sm text-muted-foreground"
-    >
-      © 2025 AI 면접 연습 | 팀 Hackerton
-    </footer>
-
-    <script src="/static/js/main.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/static/js/main.js" defer></script>
   </body>
 </html>

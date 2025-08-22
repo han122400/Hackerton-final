@@ -1,202 +1,73 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>면접 연습 - 채용공고</title>
-    <link rel="stylesheet" href="/static/styles/output.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>채용공고</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
   </head>
-  <body>
-    <div class="min-h-screen bg-background">
-      <!-- Navigation -->
-      <nav
-        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
-      >
-        <div class="flex items-center px-4 h-16">
-          <button onclick="goBack()" class="p-2 hover:bg-muted rounded-md mr-3">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-          <h1 class="text-xl font-semibold">채용공고</h1>
-        </div>
-      </nav>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+      <div class="container-xxl">
+        <a class="navbar-brand fw-bold" href="/">면접 연습</a>
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          onclick="history.back()"
+        >
+          ←
+        </button>
+      </div>
+    </nav>
 
-      <main class="max-w-md mx-auto">
-        <!-- Search and Filter Header -->
-        <div class="bg-background border-b border-border px-4 py-4">
-          <!-- Search Section -->
-          <div class="flex items-center gap-3 mb-4">
-            <div class="relative flex-1">
-              <svg
-                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                id="searchInput"
-                class="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-lg text-sm"
-                placeholder="회사명·직무·키워드로 검색"
-                oninput="applyFilters()"
-              />
-            </div>
-            <button
-              onclick="toggleFilter()"
-              class="p-3 border border-border rounded-lg hover:bg-muted"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Filter Section -->
-          <div id="filterSection" class="hidden bg-muted rounded-lg p-4 mt-4">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-sm font-semibold mb-2">직무별</label>
-                <select
-                  id="categoryFilter"
-                  class="w-full p-2 border border-border rounded-lg bg-background text-sm"
-                >
-                  <option value="all">전체</option>
-                  <option value="프론트엔드">프론트엔드</option>
-                  <option value="백엔드">백엔드</option>
-                  <option value="풀스택">풀스택</option>
-                  <option value="데이터">데이터</option>
-                  <option value="기획">기획</option>
-                  <option value="DevOps">DevOps</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">정렬</label>
-                <select
-                  id="sortFilter"
-                  class="w-full p-2 border border-border rounded-lg bg-background text-sm"
-                >
-                  <option value="latest">최신순</option>
-                  <option value="deadline">마감일순</option>
-                  <option value="company">회사명순</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2">지역별</label>
-              <div class="grid grid-cols-2 gap-2">
-                <select
-                  id="cityFilter"
-                  class="p-2 border border-border rounded-lg bg-background text-sm"
-                >
-                  <option value="all">시/도 선택</option>
-                </select>
-                <select
-                  id="districtFilter"
-                  class="p-2 border border-border rounded-lg bg-background text-sm"
-                  style="display: none"
-                >
-                  <option value="all">구/군 선택</option>
-                </select>
-              </div>
-            </div>
-
-            <div
-              class="flex justify-between items-center border-t border-border pt-3"
-            >
-              <div id="activeFilters" class="flex flex-wrap gap-2"></div>
-              <button
-                onclick="clearAllFilters()"
-                class="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-                초기화
-              </button>
-            </div>
-          </div>
-
-          <!-- Results Count -->
-          <div
-            class="text-sm text-muted-foreground mt-3 pt-3 border-t border-border"
-          >
-            총 <span id="jobCount">0</span>개의 공고가 있습니다
+    <main class="container-xxl py-4">
+      <!-- 필터 -->
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-12 col-xl">
+          <div class="input-group">
+            <span class="input-group-text">검색</span>
+            <input
+              id="searchInput"
+              type="search"
+              class="form-control"
+              placeholder="회사명·직무·키워드"
+            />
           </div>
         </div>
-
-        <!-- Job List -->
-        <div id="jobList" class="px-4 py-4 space-y-4">
-          {% if jobs %} {% for job in jobs %}
-          <div
-            class="bg-card border border-border rounded-lg p-4 hover:shadow-sm transition cursor-pointer"
-            onclick="openJobDetail('{{ job.empSeqno }}')"
-            data-job-id="{{ job.empSeqno }}"
-          >
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold">{{ job.title }}</h3>
-                <p class="text-sm text-muted-foreground mt-1">
-                  {{ job.company }}
-                </p>
-              </div>
-              <span class="text-xs text-muted-foreground"
-                >{{ job.endDate }}</span
-              >
-            </div>
-            <div class="text-xs text-muted-foreground mt-2">
-              {{ job.region }}
-            </div>
-          </div>
-          {% endfor %} {% else %}
-          <p class="text-center text-muted-foreground">
-            채용공고를 불러오는 중입니다...
-          </p>
-          {% endif %}
+        <div class="col-6 col-xl-3">
+          <select id="cityFilter" class="form-select">
+            <option value="all">시/도 선택</option>
+          </select>
         </div>
+        <div class="col-6 col-xl-3">
+          <select id="districtFilter" class="form-select d-none">
+            <option value="all">구/군 선택</option>
+          </select>
+        </div>
+        <div class="col-6 col-xl-2">
+          <select id="sortFilter" class="form-select">
+            <option value="latest">최신순</option>
+            <option value="deadline">마감일순</option>
+            <option value="company">회사명순</option>
+          </select>
+        </div>
+      </div>
 
-        <script>
-          function openJobDetail(empSeqno) {
-            if (!empSeqno) return;
-            location.href = `/job-detail?id=${empSeqno}`;
-          }
-        </script>
-      </main>
-    </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small class="text-secondary"
+          >총 <b id="jobCount">0</b>개의 공고가 있습니다</small
+        >
+        <div id="activeFilters" class="d-flex flex-wrap gap-2 small"></div>
+      </div>
 
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/data.js"></script>
-    <script>
-      // JSON.stringify를 사용하여 안전하게 데이터 전달
-      window.serverJobs = {{ jobs|tojson|safe }};
-    </script>
-    <script src="/static/js/job_list.js"></script>
+      <!-- 카드 그리드 -->
+      <div
+        id="jobList"
+        class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4"
+      ></div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/static/js/api.js" defer></script>
+    <script src="/static/js/job_list.js" defer></script>
   </body>
 </html>

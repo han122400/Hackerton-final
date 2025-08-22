@@ -1,88 +1,84 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>면접 연습 - 결과</title>
-    <link rel="stylesheet" href="/static/styles/output.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>면접 결과</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
   </head>
-  <body>
-    <div class="min-h-screen bg-background">
-      <!-- Navigation -->
-      <nav
-        class="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
-      >
-        <div class="flex items-center px-4 h-16">
-          <h1 class="text-xl font-semibold">면접 결과</h1>
-        </div>
-      </nav>
+  <body class="bg-light">
+    <nav class="navbar bg-white border-bottom sticky-top">
+      <div class="container-xxl d-flex align-items-center gap-2">
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          onclick="history.back()"
+        >
+          ←
+        </button>
+        <span class="fw-semibold">결과</span>
+      </div>
+    </nav>
 
-      <main class="max-w-md mx-auto px-6 py-6">
-        <!-- Header -->
-        <div class="text-center pb-6 border-b border-border mb-8">
-          <h2 class="text-2xl font-bold mb-6">면접 결과</h2>
-          <div class="flex justify-center mb-4">
-            <div
-              class="w-30 h-30 rounded-full bg-primary text-primary-foreground flex flex-col items-center justify-center"
+    <main class="container-xxl py-4">
+      <div class="row g-4">
+        <!-- 점수 카드 -->
+        <div class="col-lg-4">
+          <div class="card shadow-sm h-100" style="border-radius: 16px">
+            <div class="card-body">
+              <h3 class="h6 fw-semibold mb-3">요약</h3>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>총점</span><strong id="scoreValue">-</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>답변 속도</span><strong id="speedValue">-</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>명확성</span><strong id="clarityValue">-</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>논리성</span><strong id="logicValue">-</strong>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 세부 평가 + 피드백 -->
+        <div class="col-lg-8">
+          <div class="card shadow-sm mb-4" style="border-radius: 16px">
+            <div class="card-body">
+              <h3 class="h6 fw-semibold mb-3">세부 평가</h3>
+              <div id="evaluationItems" class="vstack gap-3 small"></div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm" style="border-radius: 16px">
+            <div class="card-body">
+              <h3 class="h6 fw-semibold mb-3">상세 피드백</h3>
+              <div id="feedbackContent" class="small text-secondary"></div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button
+              class="btn btn-outline-secondary flex-fill"
+              onclick="downloadResult()"
             >
-              <span id="overallScore" class="text-4xl font-bold">85</span>
-              <span class="text-sm">점</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Results -->
-        <div class="space-y-6">
-          <!-- Detailed Evaluation -->
-          <div class="bg-card border border-border rounded-lg p-5">
-            <h3 class="font-semibold mb-4">세부 평가</h3>
-            <div id="evaluationItems" class="space-y-4">
-              <!-- Evaluation items will be dynamically generated -->
-            </div>
-          </div>
-
-          <!-- Feedback -->
-          <div class="bg-card border border-border rounded-lg p-5">
-            <h3 class="font-semibold mb-4">상세 피드백</h3>
-            <div
-              id="feedbackContent"
-              class="text-sm text-muted-foreground leading-relaxed"
+              JSON 저장
+            </button>
+            <button
+              class="btn btn-primary flex-fill"
+              onclick="restartInterview()"
             >
-              <!-- Feedback will be dynamically generated -->
-            </div>
-          </div>
-
-          <!-- Recommendations -->
-          <div class="bg-card border border-border rounded-lg p-5">
-            <h3 class="font-semibold mb-4">추천 학습</h3>
-            <div id="recommendations" class="space-y-3">
-              <!-- Recommendations will be dynamically generated -->
-            </div>
+              다시 연습하기
+            </button>
           </div>
         </div>
+      </div>
+    </main>
 
-        <!-- Actions -->
-        <div class="flex gap-3 pt-8">
-          <button
-            onclick="saveResult()"
-            class="flex-1 bg-secondary text-secondary-foreground py-3 px-6 rounded-lg font-semibold hover:bg-secondary/80 transition-colors"
-          >
-            결과 저장
-          </button>
-          <button
-            onclick="restartInterview()"
-            class="flex-1 bg-primary text-primary-foreground py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-          >
-            다시 연습하기
-          </button>
-        </div>
-      </main>
-    </div>
-
-    <script src="/static/js/result.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/static/js/result.js" defer></script>
   </body>
 </html>
