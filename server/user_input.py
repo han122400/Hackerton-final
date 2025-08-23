@@ -2,9 +2,9 @@
 import os
 import json
 import logging
+import requests
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
-from supabase import create_client
 from io import BytesIO
 from docx import Document
 from datetime import datetime
@@ -12,13 +12,19 @@ from datetime import datetime
 router = APIRouter()
 logging.basicConfig(level=logging.INFO)
 
-# ======================= 🔹 Supabase 연결 ======================= #
+# ======================= 🔹 Supabase REST 설정 ======================= #
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 TABLE = "interviews"
 
 assert SUPABASE_URL and SUPABASE_KEY, "Supabase URL/KEY가 설정되지 않았습니다."
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+REST_URL = f"{SUPABASE_URL}/rest/v1/{TABLE}"
+HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"  # 삽입 후 응답 데이터를 받기 위함
+}
 
 # ======================= 🔹 이력서 분석 함수 ======================= #
 def extract_text_and_tables_from_docx(file_bytes):
@@ -83,23 +89,23 @@ async def save_user_input(
         else:
             logging.warning("⚠️ 이력서 파일 없음")
 
-        # 2️⃣ Supabase에 저장 (dict 그대로 전달)
+        # 2️⃣ Supabase REST API로 저장
         record = {
             "user_name": userName,
             "position": jobTitle,
             "company": company,
             "notes": notes,
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.utcnow().isoformat(),
             "analysis": analysis_result
         }
-        res = supabase.table(TABLE).insert(record).execute()
 
-        if res.error:
-            logging.error(f"❌ DB 저장 실패: {res.error}")
-            return JSONResponse(status_code=400, content={"ok": False, "error": res.error.message})
+        response = requests.post(REST_URL, headers=HEADERS, data=json.dumps(record))
+        if not response.ok:
+            logging.error(f"❌ DB 저장 실패: {response.text}")
+            return JSONResponse(status_code=400, content={"ok": False, "error": response.text})
 
         logging.info("✅ DB 저장 성공")
-        logging.info(f"DB 응답: {res.data}")
+        logging.info(f"DB 응답: {response.json()}")
 
         return {"ok": True, "analysis": analysis_result}
 
