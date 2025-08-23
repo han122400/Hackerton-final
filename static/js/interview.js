@@ -147,6 +147,7 @@ function stopStreamTracks() {
     live.classList.add('d-none')
   }
 }
+
 // ===== 권한 체크 + getUserMedia 통합 =====
 async function requestMicrophoneAccess() {
   const sttBox = document.getElementById('realtimeTranscript')
