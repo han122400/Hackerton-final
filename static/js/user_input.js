@@ -17,9 +17,7 @@ function handleFormSubmit(e) {
 
   const position = val(formData.get("jobTitle"));
   const company = val(formData.get("company"));
-  const notes = val(formData.get("notes"));
   const resumeFile = formData.get("resume");
-  const resumeName = resumeFile && resumeFile.name ? resumeFile.name : "";
 
   // ✅ 최소한 직무/회사 중 하나는 입력
   if (!position && !company) {
@@ -27,33 +25,58 @@ function handleFormSubmit(e) {
     return;
   }
 
-  const interviewData = {
+  // ====================================
+  // ▼▼▼▼▼▼▼▼▼▼ 이 부분이 수정되었습니다 ▼▼▼▼▼▼▼▼▼▼
+  // ====================================
+
+  // 1. localStorage에는 기존처럼 파일 이름을 포함한 JSON 정보를 저장합니다.
+  const interviewDataForStorage = {
     position,
     company,
-    notes,
-    resume: resumeName, // 포트폴리오 제거
+    notes: val(formData.get("notes")),
+    resume: resumeFile && resumeFile.name ? resumeFile.name : "",
     userName: localStorage.getItem("userName") || "",
     startTime: new Date(),
     answers: [],
     duration: 0,
   };
+  localStorage.setItem(
+    "interviewData",
+    JSON.stringify(interviewDataForStorage)
+  );
 
-  // 저장
-  localStorage.setItem("interviewData", JSON.stringify(interviewData));
+  // 2. 서버로 보낼 FormData에 폼 입력값 외의 추가 정보를 append합니다.
+  // (기존 폼 필드: jobTitle, company, notes, resume는 이미 formData에 포함되어 있습니다)
+  formData.append("userName", localStorage.getItem("userName") || "");
+  formData.append("startTime", new Date().toISOString());
+  formData.append("answers", JSON.stringify([])); // 배열은 JSON 문자열로 변환
+  formData.append("duration", "0");
 
-  // 서버에도 전송
+  // 3. 서버에 FormData 객체를 그대로 전송합니다.
+  //    - headers의 'Content-Type'을 제거해야 브라우저가 자동으로 multipart/form-data로 설정합니다.
   fetch("/api/user-input", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(interviewData),
+    body: formData,
   })
-    .then((res) => res.json().catch(() => ({ ok: false })))
+    .then((res) => {
+      // 서버 응답이 성공적이지 않을 경우를 대비
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return res.json().catch(() => ({})); // JSON 파싱 실패를 대비
+    })
     .then(() => {
       window.location.href = "/interview";
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error("Fetch Error:", error);
+      // 에러가 발생해도 일단 면접 페이지로 이동
       window.location.href = "/interview";
     });
+
+  // ====================================
+  // ▲▲▲▲▲▲▲▲▲▲ 여기까지 수정되었습니다 ▲▲▲▲▲▲▲▲▲▲
+  // ====================================
 }
 
 // 선택 공고/프로필 → 자동 채움
