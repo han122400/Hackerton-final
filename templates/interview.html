@@ -1,4 +1,3 @@
-<!-- templates/interview.html -->
 <!DOCTYPE html>
 <html lang="ko">
   <head>
@@ -6,28 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>모의면접</title>
 
-    <!-- Bootstrap -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <!-- 선택: 프로젝트 공통 스타일 -->
     <link rel="stylesheet" href="/static/styles/output.css" />
 
     <style>
-      /* 로그 영역 고정 높이 + 스크롤 */
-      #log {
-        height: 420px;
-        overflow: auto;
-        background: #0f172a; /* slate-900 느낌 */
-        color: #e2e8f0; /* text-slate-200 */
-        border-radius: 0.75rem;
-        padding: 0.75rem 0.9rem;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 13px;
-        line-height: 1.55;
-        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
-      }
-      .log-line {
-        white-space: pre-wrap;
-      }
       .rounded-16 {
         border-radius: 16px;
       }
@@ -36,29 +17,30 @@
         color: #0f172a;
         border: 1px solid rgba(2, 6, 23, 0.08);
       }
-      .badge-contrast {
-        background: #eef2ff;
-        color: #3730a3;
-        border: 1px solid #c7d2fe;
-      }
-      .badge-danger-soft {
-        background: #fee2e2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
-      }
-      .hint {
-        color: #64748b;
-        font-size: 12px;
+      .mini-kpi {
+        min-width: 110px;
       }
       .video-wrap {
         background: #000;
         border-radius: 12px;
         overflow: hidden;
       }
-      .mini-kpi {
-        min-width: 110px;
+      .hint {
+        color: #64748b;
+        font-size: 12px;
       }
-      /* 모바일에서 순서: 영상 → 컨트롤 → 로그 */
+      .stt-box {
+        height: 260px;
+        overflow: auto;
+        border-radius: 12px;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 12px;
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
+      }
+      .stt-line {
+        white-space: pre-wrap;
+      }
       @media (max-width: 991.98px) {
         .col-order-1 {
           order: 1;
@@ -66,14 +48,10 @@
         .col-order-2 {
           order: 2;
         }
-        .col-order-3 {
-          order: 3;
-        }
       }
     </style>
   </head>
   <body class="bg-light">
-    <!-- 상단 네비(필요시) -->
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand fw-semibold" href="/">면접 연습</a>
@@ -95,7 +73,7 @@
 
     <main class="container py-4">
       <div class="row g-4">
-        <!-- 좌측: 질문/녹화/영상 -->
+        <!-- 좌측: 진행도 + 카메라 + 컨트롤 + 녹화목록 -->
         <div class="col-12 col-lg-7 col-order-1">
           <!-- 진행도 & 타이머 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
@@ -123,20 +101,36 @@
             </div>
           </div>
 
-          <!-- 질문 카드 -->
+          <!-- 질문 카드 자리 → 카메라 프리뷰 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
-              <div class="h6 fw-semibold mb-2">질문</div>
-              <p id="questionText" class="mb-3">간단한 자기소개를 해주세요.</p>
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <div class="h6 fw-semibold mb-0">카메라 프리뷰</div>
+                <div class="hint">권한 허용 후 자동 시작</div>
+              </div>
+              <div class="video-wrap">
+                <!-- camera_ai.js 용 -->
+                <video
+                  id="video"
+                  class="w-100"
+                  autoplay
+                  playsinline
+                  muted
+                ></video>
+                <canvas id="canvas" class="d-none"></canvas>
+                <!-- 필요 시 동일 스트림 공유 -->
+                <video
+                  id="livePreview"
+                  class="w-100 d-none"
+                  autoplay
+                  playsinline
+                  muted
+                ></video>
+              </div>
 
-              <label class="form-label">텍스트로 답변 입력(선택)</label>
-              <textarea
-                id="answerText"
-                class="form-control"
-                rows="4"
-                placeholder="말로 답해도 되고, 텍스트로 적어도 됩니다."
-              ></textarea>
-
+              <!-- 컨트롤 -->
               <div class="d-flex gap-2 mt-3">
                 <button id="recordButton" type="button" class="btn btn-danger">
                   <svg
@@ -177,29 +171,6 @@
             </div>
           </div>
 
-          <!-- 라이브 미리보기 / 캡처용 비디오 -->
-          <div class="card border-0 shadow-sm rounded-16 mb-3">
-            <div class="card-body">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <div class="h6 fw-semibold mb-0">카메라 프리뷰</div>
-                <div class="hint">권한 허용 후 자동 시작</div>
-              </div>
-              <div class="video-wrap">
-                <!-- camera_ai.js가 사용하는 비디오/캔버스 -->
-                <video
-                  id="video"
-                  class="w-100"
-                  autoplay
-                  playsinline
-                  muted
-                ></video>
-                <canvas id="canvas" class="d-none"></canvas>
-              </div>
-            </div>
-          </div>
-
           <!-- 녹화본 재생 리스트 -->
           <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
@@ -213,11 +184,20 @@
           </div>
         </div>
 
-        <!-- 우측: 실시간 분석 KPI + 로그 -->
+        <!-- 우측: (상단) 현재 질문 / (중간) KPI / (하단) STT -->
         <div class="col-12 col-lg-5 col-order-2">
-          <!-- 실시간 KPI -->
+          <!-- 현재 질문 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
+              <div class="h6 fw-semibold mb-2">현재 질문</div>
+              <p id="questionText" class="mb-0">간단한 자기소개를 해주세요.</p>
+            </div>
+          </div>
+
+          <!-- 현재 상태 KPI -->
+          <div class="card border-0 shadow-sm rounded-16 mb-3">
+            <div class="card-body">
+              <div class="h6 fw-semibold mb-3">현재 상태</div>
               <div class="d-flex flex-wrap gap-2">
                 <span class="badge badge-ghost mini-kpi"
                   >방향 <strong id="dir">알 수 없음</strong></span
@@ -236,27 +216,19 @@
             </div>
           </div>
 
-          <!-- 로그 콘솔 -->
+          <!-- STT(음성 → 텍스트) -->
           <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
               <div
                 class="d-flex justify-content-between align-items-center mb-2"
               >
-                <div class="h6 fw-semibold mb-0">실시간 분석 로그</div>
-                <span class="hint">WebSocket: <code>/ws</code></span>
+                <div class="h6 fw-semibold mb-0">실시간 음성 인식(STT)</div>
+                <span class="hint">자동 갱신</span>
               </div>
-              <div id="log" class="mb-2"></div>
-              <div class="d-flex gap-2">
-                <button
-                  class="btn btn-outline-secondary btn-sm"
-                  type="button"
-                  onclick="document.getElementById('log').textContent=''"
-                >
-                  로그 지우기
-                </button>
-                <a class="btn btn-outline-primary btn-sm" href="/result"
-                  >결과 보기</a
-                >
+              <div id="sttBox" class="stt-box">
+                <div id="sttText" class="stt-line text-secondary">
+                  말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.
+                </div>
               </div>
             </div>
           </div>
@@ -264,7 +236,6 @@
       </div>
     </main>
 
-    <!-- JS -->
     <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/data.js"></script>
     <script src="/static/js/interview.js"></script>
