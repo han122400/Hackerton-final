@@ -2,34 +2,59 @@
 #DB 저장만 담당. Supabase Python SDK로 profiles에 insert.
 import os
 from typing import Optional, Dict, Any
+from datetime import datetime
 from supabase import create_client, Client
 
-_SUPABASE_URL = os.getenv("SUPABASE_URL")
-_SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+_SUPABASE: Optional[Client] = None
 
-if not _SUPABASE_URL or not _SUPABASE_KEY:
-    raise RuntimeError("Supabase 환경변수(SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)가 없습니다.")
+def _get_env(key: str) -> str:
+    v = os.getenv(key)
+    if not v:
+        raise RuntimeError(f"Missing environment variable: {key}")
+    return v
 
-supabase: Client = create_client(_SUPABASE_URL, _SUPABASE_KEY)
+def get_supabase() -> Client:
+    """
+    서버 내에서만 Supabase 클라이언트를 생성/캐시.
+    절대 프론트로 키를 노출하지 않습니다.
+    """
+    global _SUPABASE
+    if _SUPABASE is None:
+        url = _get_env("SUPABASE_URL")
+        service_key = _get_env("SUPABASE_SERVICE_ROLE_KEY")  # 서버에서만 사용
+        _SUPABASE = create_client(url, service_key)
+    return _SUPABASE
 
-TABLE_NAME = "profiles"   # <-- 테이블명 다르면 여기만 수정
+TABLE_NAME = os.getenv("SUPABASE_USER_TABLE", "user_info")  # 원하는 테이블명 사용
 
-def save_user_info(
-    name: str,
-    email: str,
-    phone: Optional[str] = None,
-    education: Optional[str] = None,
-    experience: Optional[str] = None,
-) -> Dict[str, Any]:
-    payload = {
-        "name": name,
-        "email": email,
-        "phone": phone,
-        "education": education,
-        "experience": experience,
+def upsert_user_info(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    이메일 기준으로 upsert (없으면 insert, 있으면 update)
+    - 테이블 스키마 예시:
+      id: uuid (default uuid_generate_v4())  ※ 없어도 됨
+      name: text
+      email: text (unique)
+      phone: text
+      education: text
+      experience: text
+      created_at: timestamp with time zone (default now())
+      updated_at: timestamp with time zone
+    """
+    sb = get_supabase()
+
+    # updated_at 갱신
+    payload = dict(payload)
+    payload["updated_at"] = datetime.utcnow().isoformat()
+
+    # upsert (email을 unique로 두면 conflict 대상)
+    # 만약 unique 인덱스가 email이 아니라 id라면 on_conflict를 그에 맞게 변경
+    res = sb.table(TABLE_NAME).upsert(payload, on_conflict="email").execute()
+
+    # Supabase 파이썬 SDK v2: res.data에 row들이 담김
+    data = res.data or []
+    item = data[0] if data else {}
+
+    return {
+        "ok": True,
+        "item": item,
     }
-    res = supabase.table(TABLE_NAME).insert(payload).execute()
-    if not res.data:
-        raise RuntimeError("DB 저장 실패 (응답 데이터 없음)")
-    # 삽입된 첫 행 반환
-    return res.data[0]

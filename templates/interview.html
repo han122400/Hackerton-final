@@ -33,6 +33,15 @@
           box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
         }
       }
+      .video-wrap video {
+        width: 100%;
+        border-radius: 12px;
+        background: #000;
+      }
+      .hint {
+        font-size: 12px;
+        color: #6c757d;
+      }
     </style>
   </head>
   <body>
@@ -43,10 +52,10 @@
       >
         <div>
           <div class="fw-semibold">모의면접 진행중</div>
-          <small class="text-secondary"
-            ><span id="interviewCompany">회사명</span> ·
-            <span id="interviewPosition">직무명</span></small
-          >
+          <small class="text-secondary">
+            <span id="interviewCompany">회사명</span> ·
+            <span id="interviewPosition">직무명</span>
+          </small>
         </div>
         <span class="badge text-bg-primary timer-badge px-3 py-2" id="timer"
           >00:00</span
@@ -57,6 +66,7 @@
     <main class="container-xxl" style="padding-top: 88px; padding-bottom: 24px">
       <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
+          <!-- 질문 -->
           <div class="card question-card bg-light border-0 mb-3">
             <div class="card-body">
               <div class="small text-secondary mb-2">
@@ -69,19 +79,31 @@
             </div>
           </div>
 
+          <!-- 라이브 미리보기 & 녹화 상태 -->
+          <div class="video-wrap mb-2">
+            <video
+              id="livePreview"
+              class="d-none"
+              autoplay
+              muted
+              playsinline
+            ></video>
+          </div>
           <div
             id="recordingSection"
-            class="d-flex justify-content-center align-items-center py-3"
+            class="d-flex justify-content-between align-items-center py-2"
           >
             <div
               id="recordingIndicator"
               class="d-none align-items-center gap-2 text-secondary"
             >
-              <span class="record-pulse"></span
-              ><span class="small">녹음 중... 말씀해주세요</span>
+              <span class="record-pulse"></span>
+              <span class="small">녹음 중... 말씀해주세요</span>
             </div>
+            <div class="hint">권한 허용 후 시작됩니다(카메라·마이크)</div>
           </div>
 
+          <!-- 텍스트 답변 -->
           <div class="mb-3">
             <textarea
               id="answerText"
@@ -91,6 +113,7 @@
             ></textarea>
           </div>
 
+          <!-- 버튼 / 진행바 -->
           <div class="border-top pt-3">
             <div class="d-flex gap-2 justify-content-between mb-3">
               <button
@@ -125,6 +148,9 @@
               ></div>
             </div>
           </div>
+
+          <!-- 녹화본 미리보기(종료 후) -->
+          <div id="playbackList" class="mt-3"></div>
         </div>
       </div>
     </main>
