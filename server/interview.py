@@ -16,8 +16,7 @@ def health_check():
 
 class Prompt(BaseModel):
     prompt: str
-
-
+    system_prompt: str = ""
 
 @router.post("/generate-text")
 def generate_text(data: Prompt):
@@ -29,9 +28,16 @@ def generate_text(data: Prompt):
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
     }
+    
+    # 메시지 구성 (system_prompt가 있으면 system 메시지로 추가)
+    messages = []
+    if data.system_prompt and data.system_prompt.strip():
+        messages.append({"role": "system", "content": data.system_prompt.strip()})
+    messages.append({"role": "user", "content": prompt})
+    
     body = {
         "model": "anthropic/claude-3-haiku",
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
     }
     try:
         r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=body, timeout=60)
