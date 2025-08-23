@@ -54,14 +54,22 @@ def extract_sections(full_text, tables_data):
     return sections
 
 # ======================= 🔹 API 라우터 ======================= #
-@router.api_route("/user-input", methods=["POST"])
+@router.post("/user-input")
 async def save_user_input(
-    jobTitle: str = Form(...),
-    company: str = Form(None),      # JS에서 보내는 회사명
+    position: str = Form(...),
+    company: str = Form(None),
     notes: str = Form(None),
     userName: str = Form(None),
     resume: UploadFile = File(None),
 ):
+    """
+    JS에서 보내는 FormData 구조:
+      - position: 직무
+      - company: 회사명
+      - notes: 메모
+      - userName: 사용자 이름
+      - resume: 이력서 파일(선택)
+    """
     try:
         # 1️⃣ 이력서 분석
         analysis_result = {}
@@ -70,10 +78,10 @@ async def save_user_input(
             full_text, tables = extract_text_and_tables_from_docx(file_bytes)
             analysis_result = extract_sections(full_text, tables)
 
-        # 2️⃣ DB에 저장
+        # 2️⃣ Supabase에 저장
         record = {
             "user_name": userName,
-            "position": jobTitle,
+            "position": position,
             "company": company,
             "notes": notes,
             "start_time": datetime.utcnow().isoformat(),

@@ -18,8 +18,7 @@ function handleFormSubmit(e) {
   const position = val(formData.get("jobTitle"));
   const company = val(formData.get("company"));
   const notes = val(formData.get("notes"));
-  const resumeFile = formData.get("resume");
-  const resumeName = resumeFile && resumeFile.name ? resumeFile.name : "";
+  const resumeFile = formData.get("resume"); // 실제 파일
 
   // ✅ 최소한 직무/회사 중 하나는 입력
   if (!position && !company) {
@@ -31,25 +30,38 @@ function handleFormSubmit(e) {
     position,
     company,
     notes,
-    resume: resumeName, // null 대신 빈 문자열
     userName: localStorage.getItem("userName") || "",
-    startTime: new Date(),
+    startTime: new Date().toISOString(),
     answers: [],
     duration: 0,
   };
 
-  // 저장
-  localStorage.setItem("interviewData", JSON.stringify(interviewData));
+  // 로컬 저장 (파일 이름만)
+  localStorage.setItem(
+    "interviewData",
+    JSON.stringify({ ...interviewData, resume: resumeFile?.name || "" })
+  );
 
-  // 서버에도 전송(있으면 처리)
+  // 서버 전송용 FormData
+  const uploadData = new FormData();
+  uploadData.append("position", position);
+  uploadData.append("company", company);
+  uploadData.append("notes", notes);
+  uploadData.append("userName", interviewData.userName);
+  uploadData.append("startTime", interviewData.startTime);
+  uploadData.append("answers", JSON.stringify(interviewData.answers));
+  uploadData.append("duration", interviewData.duration);
+  if (resumeFile && resumeFile.size > 0) {
+    uploadData.append("resume", resumeFile); // 실제 파일 전송
+  }
+
+  // 서버로 전송
   fetch("/api/user-input", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(interviewData),
+    body: uploadData, // FormData 사용
   })
     .then((res) => res.json().catch(() => ({ ok: false })))
-    .then((r) => {
-      // 서버 실패해도 로컬 저장으로 진행
+    .then(() => {
       window.location.href = "/interview";
     })
     .catch(() => {
@@ -72,6 +84,7 @@ function hydrateFromSelectedJob() {
   }
 }
 
+// DOM 로드 후 초기화
 if (document && typeof document.addEventListener === "function") {
   document.addEventListener("DOMContentLoaded", () => {
     hydrateFromSelectedJob();
