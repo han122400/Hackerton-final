@@ -12,14 +12,13 @@
       .logo-box {
         width: 96px;
         height: 96px;
+        border-radius: 12px;
         overflow: hidden;
+        background: #fff;
       }
       .desc {
         font-size: 0.95rem;
         line-height: 1.6;
-      }
-      .desc * {
-        max-width: 100%;
       }
       .desc img,
       .desc video,
@@ -40,12 +39,10 @@
       .kv-table th {
         width: 160px;
       }
-      .codebox {
-        white-space: pre-wrap;
-      }
     </style>
   </head>
   <body class="bg-light">
+    <!-- 헤더 -->
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-xxl d-flex align-items-center gap-2">
         <button
@@ -55,17 +52,23 @@
           ←
         </button>
         <span class="fw-semibold">채용공고 상세</span>
+        <div class="ms-auto d-none d-md-block">
+          <!-- ✅ 버튼: 지원하기 → 이 공고로 면접보기 -->
+          <button id="interviewBtn" type="button" class="btn btn-primary">
+            이 공고로 면접보기
+          </button>
+        </div>
       </div>
     </nav>
 
     <main class="container-xxl py-4">
-      <!-- 헤더 -->
+      <!-- 상단 요약 -->
       <section class="card shadow-sm rounded-16 mb-4">
         <div class="card-body">
           <div class="d-flex gap-3 align-items-start">
             <div
               id="companyLogo"
-              class="border rounded bg-white flex-shrink-0 d-flex align-items-center justify-content-center logo-box"
+              class="logo-box d-flex align-items-center justify-content-center border"
             ></div>
             <div class="flex-grow-1 min-w-0">
               <h1 id="jobTitle" class="h5 mb-1 text-truncate">제목</h1>
@@ -85,21 +88,11 @@
                 ></span>
               </div>
             </div>
-            <div class="ms-auto d-none d-md-flex">
-              <a
-                id="applyButton"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-primary"
-                >지원하기</a
-              >
-            </div>
           </div>
         </div>
       </section>
 
-      <!-- 요약 텍스트 섹션들 -->
+      <!-- 상세 섹션들 (렌더링 대상 컨테이너) -->
       <section id="sections" class="vstack gap-4 mb-4"></section>
 
       <!-- 모집분야 -->
@@ -113,7 +106,7 @@
         </div>
       </section>
 
-      <!-- 직종 코드 -->
+      <!-- 직종 -->
       <section
         id="jobsCodeSection"
         class="card shadow-sm rounded-16 mb-4 d-none"
@@ -135,7 +128,7 @@
         </div>
       </section>
 
-      <!-- 기타 상세(예쁘게 꾸민 나머지 정보) -->
+      <!-- 기타 상세 -->
       <section id="rawAllSection" class="card shadow-sm rounded-16">
         <div class="card-body">
           <h3 class="h6 fw-semibold mb-3">기타 상세</h3>
@@ -143,24 +136,23 @@
         </div>
       </section>
 
-      <!-- 모바일 지원 버튼 -->
-      <div class="d-grid gap-2 d-md-none container-xxl px-0 my-4">
-        <a
-          id="applyButtonMobile"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+      <!-- 모바일 버튼 -->
+      <div class="d-grid gap-2 d-md-none my-4">
+        <button
+          id="interviewBtnMobile"
+          type="button"
           class="btn btn-primary btn-lg"
-          >지원하기</a
         >
+          이 공고로 면접보기
+        </button>
       </div>
     </main>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/api.js"></script>
-    <script src="/static/js/job_detail.js?v=20250823"></script>
+    <script src="/static/js/job_detail.js?v=final"></script>
 
-    <!-- 본문 내 a 태그는 새 탭 -->
+    <!-- 본문 링크 새탭 열기 -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const fixTargets = () => {
