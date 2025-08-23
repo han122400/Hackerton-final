@@ -54,7 +54,7 @@ def extract_sections(full_text, tables_data):
     return sections
 
 # ======================= 🔹 API 라우터 ======================= #
-@router.post("/user-input")
+@router.api_route("/user-input", methods=["POST"])
 async def save_user_input(
     jobTitle: str = Form(...),
     company: str = Form(None),      # JS에서 보내는 회사명

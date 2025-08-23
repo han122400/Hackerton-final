@@ -5,30 +5,9 @@ import os
 import uuid
 import librosa
 import numpy as np
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 app = FastAPI()
 model = whisper.load_model("medium")
-
-# ------------------------
-# PostgreSQL 연결 정보
-# ------------------------
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "postgres")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASS = os.getenv("DB_PASS", "1234")
-
-def get_db_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS,
-        cursor_factory=RealDictCursor
-    )
 
 # ------------------------
 # 오디오 분석 함수
@@ -84,28 +63,6 @@ async def analyze(audio: UploadFile = File(...)):
             signal_analysis["avg_pitch"],
             signal_analysis["duration_sec"]
         )
-
-        # ------------------------
-        # DB 저장
-        # ------------------------
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute(
-            """
-            INSERT INTO audio_analysis (text, energy, avg_pitch, duration_sec, emotion)
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (
-                transcription,
-                signal_analysis["energy"],
-                signal_analysis["avg_pitch"],
-                signal_analysis["duration_sec"],
-                emotion
-            )
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
 
         print({
             "text": transcription,
