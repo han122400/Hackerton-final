@@ -2,239 +2,257 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>모의면접</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI 모의면접 – 인터뷰</title>
 
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-
+    <!-- Bootstrap only -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-      .rounded-16 {
-        border-radius: 16px;
-      }
-      .video-wrap {
-        background: #000;
-        border-radius: 12px;
+      /* 카메라 프리뷰 카드 */
+      .preview-wrap {
+        border-radius: 1rem;
         overflow: hidden;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
       }
-      .hint {
-        color: #64748b;
-        font-size: 12px;
-      }
-      .mini-kpi {
-        min-width: 110px;
+      video#video {
+        width: 100%;
+        height: auto;
+        display: block;
+        background: #0b1320;
       }
 
-      /* ── 녹음 중 애니메이션 동그라미 ─────────────────────────── */
-      /* JS가 #recordingIndicator의 d-none을 제거/추가하여 표시 제어 */
-      #recordingIndicator {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.6rem;
+      /* 상태 카드 안 배지들(왼쪽 정렬) */
+      .state-badge {
+        min-width: 120px;
+        background: #f6f8fb;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-weight: 700;
+        color: #202636;
+      }
+      .state-badge small {
+        color: #667085;
+        font-weight: 600;
+      }
+
+      /* 오른쪽 녹화 상태 동그라미 */
+      .rec-indicator {
+        position: relative;
+        width: 44px;
+        height: 44px;
         border-radius: 999px;
-        background: #0f172a; /* 진한 남색 캡슐 */
-        color: #e2e8f0;
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        font-size: 0.875rem;
-        line-height: 1;
+        background: #ef4444; /* 기본 점 */
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
       }
-      #recordingIndicator .dot {
-        width: 0.7rem;
-        height: 0.7rem;
-        border-radius: 50%;
-        background: #ef4444; /* 빨강 점 */
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
-        animation: pulse 1.25s ease-in-out infinite;
+      .rec-indicator.active {
+        animation: recPulse 1.4s ease-in-out infinite;
       }
-      @keyframes pulse {
+      @keyframes recPulse {
         0% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
           transform: scale(1);
-          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
         }
         70% {
-          transform: scale(1.25);
-          box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+          box-shadow: 0 0 0 16px rgba(239, 68, 68, 0);
+          transform: scale(1.06);
         }
         100% {
-          transform: scale(1);
           box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+          transform: scale(1);
         }
       }
 
-      /* STT 박스 */
+      /* STT 영역 */
       .stt-box {
-        min-height: 220px;
-        max-height: 360px;
-        overflow: auto;
-        border-radius: 12px;
-        background: #0f172a;
-        color: #e2e8f0;
-        padding: 14px;
-        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
-      }
-      .stt-line {
+        border-radius: 0.75rem;
+        padding: 1rem;
+        background: #0b1320;
+        color: #cbd5e1;
+        min-height: 180px;
         white-space: pre-wrap;
       }
-      @media (max-width: 991.98px) {
-        .col-order-1 {
-          order: 1;
-        }
-        .col-order-2 {
-          order: 2;
-        }
+
+      /* 질문 텍스트 */
+      .question-box {
+        border-radius: 0.75rem;
+        background: #f8fafc;
+        padding: 1rem;
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #111827;
       }
     </style>
   </head>
   <body class="bg-light">
-    <!-- 상단 바 -->
-    <nav class="navbar bg-white border-bottom sticky-top">
-      <div class="container-fluid">
-        <a class="navbar-brand fw-semibold" href="/">면접 연습</a>
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-secondary small">
-            <span id="interviewCompany">회사명</span> ·
-            <span id="interviewPosition">직무명</span>
+    <main class="container py-4 py-md-5">
+      <!-- 상단 정보 -->
+      <div
+        class="d-flex flex-wrap align-items-center justify-content-between mb-3"
+      >
+        <div class="me-3">
+          <div class="h5 mb-1" id="interviewCompany">회사명</div>
+          <div class="text-secondary">
+            지원 직무: <span id="interviewPosition">직무명</span>
           </div>
+        </div>
+        <div class="text-end">
+          <div class="small text-secondary">진행 시간</div>
+          <div class="h4 mb-0"><span id="timer">00:00</span></div>
         </div>
       </div>
-    </nav>
 
-    <main class="container py-4">
+      <!-- 카메라 프리뷰 & 질문/상태 -->
       <div class="row g-4">
-        <!-- 좌측: 진행도 + 카메라 프리뷰 -->
-        <div class="col-12 col-lg-7 col-order-1">
-          <!-- 진행도 & 타이머 + 🔴녹음표시 -->
-          <div class="card border-0 shadow-sm rounded-16 mb-3">
-            <div class="card-body">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <div class="fw-semibold">
-                  질문 <span id="currentQuestion">1</span>/<span
-                    id="totalQuestions"
-                    >5</span
-                  >
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <!-- 🔴 JS가 d-none 제거 시 보임 -->
-                  <span id="recordingIndicator" class="d-none">
-                    <span class="dot" aria-hidden="true"></span>
-                    <span>녹음 중</span>
-                  </span>
-                  <span class="badge text-bg-dark"
-                    >⏱ <span id="timer">00:00</span></span
-                  >
-                </div>
-              </div>
-              <div class="progress" style="height: 10px">
-                <div
-                  id="progressFill"
-                  class="progress-bar"
-                  style="width: 0%"
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 카메라 프리뷰 -->
-          <div class="card border-0 shadow-sm rounded-16">
-            <div class="card-body">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <div class="h6 fw-semibold mb-0">카메라 프리뷰</div>
-                <div class="hint">권한 허용 후 자동 시작</div>
-              </div>
-              <div class="video-wrap">
-                <!-- camera_ai.js가 사용 -->
-                <video
-                  id="video"
-                  class="w-100"
-                  autoplay
-                  playsinline
-                  muted
-                ></video>
-                <canvas id="canvas" class="d-none"></canvas>
-                <!-- 필요 시 동일 스트림 공유 -->
-                <video
-                  id="livePreview"
-                  class="w-100 d-none"
-                  autoplay
-                  playsinline
-                  muted
-                ></video>
-              </div>
-            </div>
-          </div>
+        <!-- 좌: 카메라 프리뷰 -->
+        <div class="col-12 col-lg-7">
+          <section class="preview-wrap">
+            <video
+              id="video"
+              autoplay
+              playsinline
+              muted
+              class="bg-dark"
+            ></video>
+          </section>
+          <!-- canvas는 WebSocket 전송용, 화면엔 숨김 -->
+          <canvas id="canvas" class="d-none"></canvas>
+          <!-- camera_ai.js가 로그를 쓰므로 에러 방지를 위해 숨김 -->
+          <div id="log" class="d-none" aria-hidden="true"></div>
         </div>
 
-        <!-- 우측: 현재 질문 / KPI / STT -->
-        <div class="col-12 col-lg-5 col-order-2">
-          <!-- 현재 질문 -->
-          <div class="card border-0 shadow-sm rounded-16 mb-3">
-            <div class="card-body">
-              <div class="h6 fw-semibold mb-2">현재 질문</div>
-              <p id="questionText" class="mb-0">간단한 자기소개를 해주세요.</p>
-            </div>
-          </div>
-
-          <!-- 현재 상태 KPI -->
-          <div class="card border-0 shadow-sm rounded-16 mb-3">
-            <div class="card-body">
-              <div class="h6 fw-semibold mb-3">현재 상태</div>
-              <div class="d-flex flex-wrap gap-2">
-                <span class="badge bg-light text-dark mini-kpi"
-                  >방향 <strong id="dir">-</strong></span
-                >
-                <span class="badge bg-light text-dark mini-kpi"
-                  >시선 <strong id="gaze">-</strong></span
-                >
-                <span class="badge bg-light text-dark mini-kpi"
-                  >미소 <strong id="smile">-</strong></span
-                >
-                <span class="badge text-bg-success mini-kpi"
-                  >태도 점수 <strong id="score">0</strong></span
-                >
-              </div>
-              <div class="hint mt-2">※ 1초 간격으로 갱신됩니다.</div>
-            </div>
-          </div>
-
-          <!-- STT(음성 → 텍스트) -->
-          <div class="card border-0 shadow-sm rounded-16">
+        <!-- 우: 질문/상태/음성 텍스트 -->
+        <div class="col-12 col-lg-5">
+          <!-- (1) 현재 질문 -->
+          <section class="card shadow-sm mb-3">
             <div class="card-body">
               <div
                 class="d-flex justify-content-between align-items-center mb-2"
               >
-                <div class="h6 fw-semibold mb-0">실시간 음성 인식(STT)</div>
-                <span class="hint">자동 갱신</span>
+                <h2 class="h6 mb-0">
+                  현재 질문
+                  <span class="text-secondary"
+                    >( <span id="currentQuestion">1</span> /
+                    <span id="totalQuestions">5</span> )</span
+                  >
+                </h2>
+                <button
+                  id="nextQuestionBtn"
+                  class="btn btn-primary btn-sm"
+                  type="button"
+                  onclick="nextQuestion()"
+                >
+                  다음 질문
+                </button>
               </div>
-              <div id="sttBox" class="stt-box">
-                <div id="sttText" class="stt-line text-secondary">
-                  말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.
-                </div>
+              <div id="questionText" class="question-box">
+                질문을 불러오는 중…
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- 하단 컨트롤: '다음 질문'만 유지 -->
-          <div class="d-grid mt-3">
-            <button
-              type="button"
-              class="btn btn-primary btn-lg"
-              onclick="nextQuestion()"
-            >
-              다음 질문
-            </button>
-          </div>
+          <!-- (2) 현재 상태 (왼쪽 배지 / 오른쪽 녹화 동그라미) -->
+          <section class="card shadow-sm mb-3">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h2 class="h6 mb-0">현재 상태</h2>
+                <!-- 우측 원형 애니메이션 -->
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-secondary small">녹음 중</span>
+                  <div id="recDot" class="rec-indicator"></div>
+                </div>
+              </div>
+
+              <div class="row g-2 align-items-stretch">
+                <div class="col-12 col-md-4">
+                  <div
+                    class="state-badge h-100 d-flex align-items-center justify-content-between"
+                  >
+                    <small>방향</small>
+                    <span id="dir">-</span>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div
+                    class="state-badge h-100 d-flex align-items-center justify-content-between"
+                  >
+                    <small>시선</small>
+                    <span id="gaze">-</span>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div
+                    class="state-badge h-100 d-flex align-items-center justify-content-between"
+                  >
+                    <small>미소</small>
+                    <span id="smile">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 small text-secondary">
+                ※ 1초 간격으로 갱신됩니다.
+                <span class="ms-2"
+                  >태도 점수: <strong id="score">0</strong></span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- (3) STT(사용자 음성 → 텍스트) -->
+          <section class="card shadow-sm">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h2 class="h6 mb-0">실시간 음성 인식(STT)</h2>
+                <span id="sttAuto" class="small text-secondary">자동 갱신</span>
+              </div>
+              <div id="sttText" class="stt-box">
+                말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </main>
 
-    <!-- JS -->
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 페이지 스크립트들: 순서 중요 (data → app/api → camera → interview) -->
     <script src="/static/js/data.js"></script>
-    <script src="/static/js/interview.js"></script>
+    <script src="/static/js/api.js"></script>
     <script src="/static/js/camera_ai.js"></script>
+    <script src="/static/js/interview_ai.js"></script>
+    <script src="/static/js/interview.js"></script>
+
+    <script>
+      // 🔴 우측 동그라미에 “촬영/캡처 중” 느낌을 주기 위한 간단 토글
+      // - camera_ai.js가 video.srcObject를 세팅하면 활성화
+      // - 끊기면 비활성화
+      (function () {
+        const dot = document.getElementById("recDot");
+        const video = document.getElementById("video");
+        // 최초 로딩 후 주기적으로 상태 체크
+        setInterval(() => {
+          if (video && video.srcObject) {
+            dot.classList.add("active");
+          } else {
+            dot.classList.remove("active");
+          }
+        }, 500);
+        // metadata 로드 시 바로 반영
+        video?.addEventListener("loadedmetadata", () =>
+          dot.classList.add("active")
+        );
+      })();
+    </script>
   </body>
 </html>
