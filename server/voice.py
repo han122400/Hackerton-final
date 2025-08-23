@@ -6,7 +6,7 @@ import numpy as np
 import librosa
 
 router = APIRouter()
-model = whisper.load_model("medium")
+model = whisper.load_model("small")
 
 def analyze_audio(audio_bytes: bytes):
     # WebM -> WAV 변환
