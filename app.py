@@ -7,14 +7,12 @@ from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-
-
-
 # API 라우터들 import
 from server.interview import router as interview_router
 from server.camera_analyzer import router as camera_router
 from server.profile import router as profile_router
 from api.routers.work24 import router as work24_router, get_jobs  # get_jobs 함수 추가
+from server.user_input import router as user_input_router  # 추가된 user-input 라우터
 
 app = FastAPI()
 
@@ -79,8 +77,7 @@ app.include_router(interview_router, prefix="/api")
 app.include_router(camera_router, prefix="/api")
 app.include_router(profile_router, prefix="/api")
 app.include_router(work24_router, prefix="/api", tags=["work24"])
-
-
+app.include_router(user_input_router, prefix="/api")  # 추가
 
 # 헬스체크
 @app.get("/health")

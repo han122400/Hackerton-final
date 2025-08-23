@@ -1,20 +1,23 @@
-# user_input.py (통합 테스트용)
+# server/user_input.py
 import os
 import json
-from fastapi import FastAPI, UploadFile, File, Form
+import logging
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from supabase import create_client
 from io import BytesIO
 from docx import Document
 from datetime import datetime
 
-app = FastAPI()
+router = APIRouter()
+logging.basicConfig(level=logging.INFO)
 
 # ======================= 🔹 Supabase 연결 ======================= #
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 TABLE = "interviews"
 
+assert SUPABASE_URL and SUPABASE_KEY, "Supabase URL/KEY가 설정되지 않았습니다."
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ======================= 🔹 이력서 분석 함수 ======================= #
@@ -55,17 +58,17 @@ def extract_sections(full_text, tables_data):
     return sections
 
 # ======================= 🔹 API 엔드포인트 ======================= #
-@app.post("/user-input")
+@router.post("/user-input")
 async def save_user_input(
-    position: str = Form(...),
+    jobTitle: str = Form(...),            # JS에서 보내는 필드명과 일치
     company: str = Form(None),
     notes: str = Form(None),
     userName: str = Form(None),
     resume: UploadFile = File(None),
 ):
     try:
-        print("\n=== 새 요청 ===")
-        print(f"position: {position}, company: {company}, userName: {userName}")
+        logging.info("\n=== 새 요청 ===")
+        logging.info(f"position(jobTitle): {jobTitle}, company: {company}, userName: {userName}")
 
         # 1️⃣ 이력서 분석
         analysis_result = {}
@@ -73,33 +76,33 @@ async def save_user_input(
             file_bytes = await resume.read()
             full_text, tables = extract_text_and_tables_from_docx(file_bytes)
             analysis_result = extract_sections(full_text, tables)
-            print("✅ 분석 결과:")
+            logging.info("✅ 분석 결과:")
             for k,v in analysis_result.items():
                 preview = v.strip()[:200] + ("..." if len(v.strip()) > 200 else "")
-                print(f"--- {k} ---\n{preview}\n")
+                logging.info(f"--- {k} ---\n{preview}\n")
         else:
-            print("⚠️ 이력서 파일 없음")
+            logging.warning("⚠️ 이력서 파일 없음")
 
-        # 2️⃣ Supabase에 저장 (JSONB 직렬화 포함)
+        # 2️⃣ Supabase에 저장 (dict 그대로 전달)
         record = {
             "user_name": userName,
-            "position": position,
+            "position": jobTitle,
             "company": company,
             "notes": notes,
-            "start_time": datetime.utcnow(),  # TIMESTAMP WITH TIME ZONE
-            "analysis": json.dumps(analysis_result or {})  # JSONB 안전 저장
+            "start_time": datetime.utcnow(),
+            "analysis": analysis_result
         }
         res = supabase.table(TABLE).insert(record).execute()
 
         if res.error:
-            print("❌ DB 저장 실패:", res.error)
+            logging.error(f"❌ DB 저장 실패: {res.error}")
             return JSONResponse(status_code=400, content={"ok": False, "error": res.error.message})
 
-        print("✅ DB 저장 성공")
-        print("DB 응답:", res.data)
+        logging.info("✅ DB 저장 성공")
+        logging.info(f"DB 응답: {res.data}")
 
         return {"ok": True, "analysis": analysis_result}
 
     except Exception as e:
-        print("❌ 예외 발생:", e)
+        logging.exception("❌ 예외 발생:")
         return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
