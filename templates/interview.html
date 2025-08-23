@@ -72,7 +72,12 @@
         background: #0b1320;
         color: #cbd5e1;
         min-height: 180px;
-        white-space: pre-wrap;
+        white-space: pre-line;
+      }
+      /* STT placeholder */
+      .stt-box:empty::before {
+        content: "말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.";
+        color: #94a3b8;
       }
 
       /* 질문 텍스트 */
@@ -214,9 +219,7 @@
                 <h2 class="h6 mb-0">실시간 음성 인식(STT)</h2>
                 <span id="sttAuto" class="small text-secondary">자동 갱신</span>
               </div>
-              <div id="sttText" class="stt-box">
-                말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.
-              </div>
+              <div id="sttText" class="stt-box" aria-live="polite"></div>
             </div>
           </section>
         </div>
