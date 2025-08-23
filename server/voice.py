@@ -8,6 +8,7 @@ import whisper
 from functools import lru_cache
 
 router = APIRouter()
+model = whisper.load_model("small")
 
 
 @lru_cache(maxsize=1)

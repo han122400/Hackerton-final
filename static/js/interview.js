@@ -1,4 +1,4 @@
-// interview.js – 완전 통합 버전 (분석 상태 표시 포함, 최최최종)
+// interview.js – 완전 통합 버전 (분석 상태 표시 포함)
 
 let interviewData = null;
 let currentQuestionIndex = 0;
@@ -36,23 +36,8 @@ function generateInterviewQuestions() {
   if (totalEl) totalEl.textContent = interviewQuestions.length;
 }
 
-// ===== OpenRouter에서 질문 받아오기 =====
-async function fetchInterviewQuestion(prompt) {
-  try {
-    const res = await fetch("/api/generate-text", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
-    const data = await res.json();
-    return data.answer || prompt;
-  } catch (e) {
-    return "질문을 불러오지 못했습니다.";
-  }
-}
-
-// ===== 현재 질문 표시 (OpenRouter API 연동) =====
-async function showCurrentQuestion() {
+// ===== 현재 질문 표시 =====
+function showCurrentQuestion() {
   if (currentQuestionIndex >= interviewQuestions.length) {
     completeInterview();
     return;
@@ -63,13 +48,7 @@ async function showCurrentQuestion() {
   const answerEl = document.getElementById("answerText");
 
   if (idxEl) idxEl.textContent = currentQuestionIndex + 1;
-
-  // OpenRouter에서 질문 받아와 표시
-  const prompt = interviewQuestions[currentQuestionIndex];
-  if (qTextEl) qTextEl.textContent = "질문을 생성 중...";
-  const questionText = await fetchInterviewQuestion(prompt);
-  if (qTextEl) qTextEl.textContent = questionText;
-
+  if (qTextEl) qTextEl.textContent = interviewQuestions[currentQuestionIndex];
   if (answerEl) answerEl.value = "";
 
   updateProgressBar();
@@ -88,14 +67,9 @@ function updateProgressBar() {
 function nextQuestion() {
   if (isRecording) toggleRecording(); // 녹음 중이면 중지
 
-  // 실제 화면에 표시된 질문 텍스트를 저장(오픈라우터 결과 반영)
-  const shownQuestion =
-    document.getElementById("questionText")?.textContent?.trim() ||
-    interviewQuestions[currentQuestionIndex];
-
   const answer = (document.getElementById("answerText")?.value ?? "").trim();
   interviewAnswers.push({
-    question: shownQuestion,
+    question: interviewQuestions[currentQuestionIndex],
     answer: answer,
     timestamp: new Date(),
   });
@@ -104,7 +78,7 @@ function nextQuestion() {
   showCurrentQuestion();
 }
 
-// ===== 카메라/마이크 스트림 유지 =====
+// ===== 카메라/마이크 스트림 유지 (getMediaStream 원본 유지) =====
 async function getMediaStream() {
   if (currentStream) return currentStream;
 
@@ -128,8 +102,7 @@ async function getMediaStream() {
     });
     currentStream = stream;
 
-    // ✅ 실제 HTML과 동일한 id: #video
-    const live = document.getElementById("video");
+    const live = document.getElementById("livePreview");
     if (live) {
       live.classList.remove("d-none");
       live.srcObject = stream;
@@ -147,18 +120,17 @@ function stopStreamTracks() {
     currentStream.getTracks().forEach((t) => t.stop());
     currentStream = null;
   }
-  const live = document.getElementById("video"); // ✅ HTML과 통일
+  const live = document.getElementById("livePreview");
   if (live) {
     live.srcObject = null;
     live.classList.add("d-none");
   }
 }
-
-// ===== 권한 체크 + 마이크 접근 =====
+// ===== 권한 체크 + getUserMedia 통합 =====
 async function requestMicrophoneAccess() {
-  const sttBox = document.getElementById("sttText"); // ✅ 실제 STT 영역 id
+  const sttBox = document.getElementById("realtimeTranscript");
 
-  // 권한 상태 확인
+  // 먼저 권한 상태 확인
   if (navigator.permissions) {
     try {
       const micPerm = await navigator.permissions.query({ name: "microphone" });
@@ -183,16 +155,26 @@ async function requestMicrophoneAccess() {
   }
 }
 
+// 마이크 권한 요청
+async function requestMicrophoneAccess() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    return stream;
+  } catch (err) {
+    alert("마이크 권한이 필요합니다. 브라우저 설정에서 허용해주세요.");
+    console.error("마이크 권한 요청 실패:", err);
+    return null;
+  }
+}
+
 // ===== 녹음 토글 =====
 async function toggleRecording() {
   const recordButton = document.getElementById("recordButton");
   const recDot = document.getElementById("recDot");
-  const sttBox = document.getElementById("sttText"); // ✅ 통일
+  const sttBox = document.getElementById("realtimeTranscript");
 
   if (isRecording) {
-    try {
-      mediaRecorder?.stop();
-    } catch {}
+    mediaRecorder.stop();
     isRecording = false;
     if (recordButton) {
       recordButton.textContent = "음성 답변";
@@ -225,10 +207,7 @@ async function toggleRecording() {
       }
 
       try {
-        const res = await fetch("/api/analyze", {
-          method: "POST",
-          body: formData,
-        });
+        const res = await fetch("/api/analyze", { method: "POST", body: formData });
         const data = await res.json();
         if (sttBox) sttBox.textContent = data.text || "분석 결과가 없습니다.";
         console.log("서버 응답:", data);
@@ -238,6 +217,8 @@ async function toggleRecording() {
       }
 
       stream.getTracks().forEach((t) => t.stop());
+
+  
     };
 
     mediaRecorder.start();
@@ -250,6 +231,9 @@ async function toggleRecording() {
     if (recDot) recDot.classList.add("active");
   }
 }
+
+
+
 
 // ===== 타이머 =====
 function startInterviewTimer() {
@@ -324,25 +308,25 @@ function generateRecommendations() {
 }
 
 // ===== 초기화 =====
-async function initializeInterview() {
+function initializeInterview() {
   if (!interviewData) return;
 
   document.getElementById("interviewCompany").textContent =
     interviewData.company || "회사명";
   document.getElementById("interviewPosition").textContent =
-    interviewData.role || interviewData.position || "직무명"; // ✅ role/position 모두 대응
+    interviewData.position || "직무명";
 
   generateInterviewQuestions();
-  await showCurrentQuestion();
+  showCurrentQuestion();
   startInterviewTimer();
 }
 
 // ===== 페이지 로드시 =====
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
   const data = localStorage.getItem("interviewData");
   if (data) {
     interviewData = JSON.parse(data);
-    await initializeInterview();
+    initializeInterview();
   } else {
     alert("면접 정보를 찾을 수 없습니다.");
     window.location.href = "/";
@@ -366,10 +350,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         `공고에서 요구하는 역량 중 본인 강점 1~2개를 사례와 함께 설명해주세요.`,
         `요구 기술 중 가장 자신 있는 기술을 선택해 최근 경험을 말해보세요.`,
         `해당 포지션 핵심 업무에 대한 이해와 입사 후 3개월 계획은?`,
-        `공고 요약: ${base.slice(
-          0,
-          120
-        )}... 를 바탕으로 가장 적합한 프로젝트 경험을 설명하세요.`,
+        `공고 요약: ${base.slice(0, 120)}... 를 바탕으로 가장 적합한 프로젝트 경험을 설명하세요.`,
       ];
     }
 
@@ -378,20 +359,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const cEl = document.getElementById("interviewCompany");
     const tEl = document.getElementById("interviewPosition");
-    if (cEl) cEl.innerText = p.job?.company || cEl.innerText || "회사명";
-    if (tEl) tEl.innerText = p.job?.title || tEl.innerText || "직무명";
+    if (cEl) cEl.innerText = p.job?.company || "회사명";
+    if (tEl) tEl.innerText = p.job?.title || "직무명";
 
     const qs = buildQuestions(p);
     window.__questions = qs;
 
     const qEl = document.getElementById("questionText");
     const totalEl = document.getElementById("totalQuestions");
-    if (qEl && !qEl.textContent?.trim()) qEl.innerText = qs[0];
-    if (totalEl && !totalEl.textContent?.trim()) totalEl.innerText = qs.length;
+    if (qEl) qEl.innerText = qs[0];
+    if (totalEl) totalEl.innerText = qs.length;
   })();
 
-  // 녹음 버튼 연결(있을 때만)
-  document
-    .getElementById("recordButton")
-    ?.addEventListener("click", toggleRecording);
+  // 녹음 버튼 연결
+  document.getElementById("recordButton")?.addEventListener("click", toggleRecording);
 });
