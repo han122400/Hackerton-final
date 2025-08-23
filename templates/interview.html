@@ -6,7 +6,6 @@
     <title>모의면접</title>
 
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/static/styles/output.css" />
 
     <style>
       .rounded-16 {
@@ -49,6 +48,27 @@
           order: 2;
         }
       }
+
+      .recording-pulse {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background-color: #16a34a; /* 부트스트랩 success 색상과 유사 */
+        border-radius: 50%;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -73,9 +93,7 @@
 
     <main class="container py-4">
       <div class="row g-4">
-        <!-- 좌측: 진행도 + 카메라 + 컨트롤 + 녹화목록 -->
         <div class="col-12 col-lg-7 col-order-1">
-          <!-- 진행도 & 타이머 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div
@@ -101,7 +119,6 @@
             </div>
           </div>
 
-          <!-- 질문 카드 자리 → 카메라 프리뷰 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div
@@ -111,7 +128,6 @@
                 <div class="hint">권한 허용 후 자동 시작</div>
               </div>
               <div class="video-wrap">
-                <!-- camera_ai.js 용 -->
                 <video
                   id="video"
                   class="w-100"
@@ -120,7 +136,6 @@
                   muted
                 ></video>
                 <canvas id="canvas" class="d-none"></canvas>
-                <!-- 필요 시 동일 스트림 공유 -->
                 <video
                   id="livePreview"
                   class="w-100 d-none"
@@ -130,8 +145,7 @@
                 ></video>
               </div>
 
-              <!-- 컨트롤 -->
-              <div class="d-flex gap-2 mt-3">
+              <div class="d-flex align-items-center gap-2 mt-3">
                 <button id="recordButton" type="button" class="btn btn-danger">
                   <svg
                     width="20"
@@ -145,33 +159,32 @@
                   </svg>
                   음성 답변
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  onclick="nextQuestion()"
-                >
-                  다음 질문
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  onclick="completeInterview()"
-                >
-                  면접 종료
-                </button>
-              </div>
 
-              <!-- 녹화 중 인디케이터 -->
-              <div
-                id="recordingIndicator"
-                class="d-none mt-3 alert alert-success py-2 mb-0"
-              >
-                🎙️ 녹음/녹화 중입니다. 다시 누르면 정지합니다.
+                <span
+                  id="recordingIndicator"
+                  class="recording-pulse d-none"
+                ></span>
+
+                <div class="ms-auto d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="nextQuestion()"
+                  >
+                    다음 질문
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="completeInterview()"
+                  >
+                    면접 종료
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 녹화본 재생 리스트 -->
           <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
               <div class="h6 fw-semibold mb-2">녹화된 답변</div>
@@ -184,9 +197,7 @@
           </div>
         </div>
 
-        <!-- 우측: (상단) 현재 질문 / (중간) KPI / (하단) STT -->
         <div class="col-12 col-lg-5 col-order-2">
-          <!-- 현재 질문 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div class="h6 fw-semibold mb-2">현재 질문</div>
@@ -194,7 +205,6 @@
             </div>
           </div>
 
-          <!-- 현재 상태 KPI -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div class="h6 fw-semibold mb-3">현재 상태</div>
@@ -216,7 +226,6 @@
             </div>
           </div>
 
-          <!-- STT(음성 → 텍스트) -->
           <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
               <div

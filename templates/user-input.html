@@ -33,9 +33,11 @@
         id="interviewForm"
         class="card shadow-sm mx-auto rounded-16"
         style="max-width: 900px"
+        enctype="multipart/form-data"
       >
         <div class="card-body">
           <div class="row g-3">
+            <!-- 직무 -->
             <div class="col-md-12">
               <label for="jobTitle" class="form-label">직무</label>
               <input
@@ -44,8 +46,12 @@
                 class="form-control"
                 placeholder="예: 프론트엔드 개발자"
               />
+              <div class="help mt-1">
+                * 공고에서 선택했다면 자동으로 채워져요.
+              </div>
             </div>
 
+            <!-- 회사명 -->
             <div class="col-md-12">
               <label for="company" class="form-label">회사명</label>
               <input
@@ -56,20 +62,53 @@
               />
             </div>
 
+            <!-- 이력서 (필수) -->
             <div class="col-md-12">
-              <label for="resume" class="form-label">이력서(.docx)</label>
+              <label for="resume" class="form-label">이력서 파일 (필수)</label>
               <input
                 id="resume"
                 name="resume"
                 type="file"
                 class="form-control"
-                accept=".docx"
+                accept=".pdf,.doc,.docx"
+                required
               />
               <div class="help mt-1">
-                * Microsoft Word .docx 파일만 선택할 수 있어요.
+                * .pdf / .doc / .docx 파일 중 하나를 선택하세요.
               </div>
             </div>
 
+            <!-- 커버레터(자기소개서 본문) 선택 -->
+            <div class="col-12">
+              <label for="coverLetter" class="form-label"
+                >자기소개서(선택)</label
+              >
+              <textarea
+                id="coverLetter"
+                name="coverLetter"
+                rows="6"
+                class="form-control"
+                placeholder="자기소개서 텍스트를 붙여넣거나 간단히 요약을 적어도 됩니다."
+              ></textarea>
+            </div>
+
+            <!-- 포트폴리오 파일 (선택) -->
+            <div class="col-md-12">
+              <label for="portfolio" class="form-label">포트폴리오(선택)</label>
+              <input
+                id="portfolio"
+                name="portfolio"
+                type="file"
+                class="form-control"
+                accept=".pdf,.ppt,.pptx,.zip,.pdf,.doc,.docx"
+              />
+              <div class="help mt-1">
+                * 용량 큰 파일은 실제 업로드는 서버 구현 후 사용 권장(현재는
+                파일명만 전달).
+              </div>
+            </div>
+
+            <!-- 기타 메모 -->
             <div class="col-12">
               <label for="notes" class="form-label">기타 메모</label>
               <textarea
@@ -77,6 +116,7 @@
                 name="notes"
                 rows="4"
                 class="form-control"
+                placeholder="면접 시 유의할 점, 질문 요청사항 등을 적어두면 결과 화면에서도 참고됩니다."
               ></textarea>
             </div>
           </div>
