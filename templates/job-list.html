@@ -5,6 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>채용공고</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <style>
+      .filter-card {
+        border-radius: 16px;
+      }
+      .job-card {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(14, 20, 51, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+        overflow: hidden; /* 내용 튐 방지 */
+      }
+      .job-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(14, 20, 51, 0.12);
+      }
+      /* 말줄임 유틸 */
+      .min-w-0 {
+        min-width: 0;
+      }
+      .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+      /* 배지 대비 강화 */
+      .badge-contrast {
+        background: #eef2ff;
+        color: #111827;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+      }
+      .badge-danger-soft {
+        background: #ffe4e6;
+        color: #9f1239;
+        border: 1px solid #fecdd3;
+      }
+    </style>
   </head>
   <body class="bg-light">
     <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
@@ -20,46 +64,48 @@
     </nav>
 
     <main class="container-xxl py-4">
-      <!-- 필터 -->
-      <div class="row g-2 align-items-center mb-3">
-        <div class="col-12 col-xl">
-          <div class="input-group">
-            <span class="input-group-text">검색</span>
-            <input
-              id="searchInput"
-              type="search"
-              class="form-control"
-              placeholder="회사명·직무·키워드"
-            />
+      <section class="card shadow-sm filter-card mb-4">
+        <div class="card-body">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-xl">
+              <div class="input-group">
+                <span class="input-group-text">검색</span>
+                <input
+                  id="searchInput"
+                  type="search"
+                  class="form-control"
+                  placeholder="회사명·직무·키워드"
+                />
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <select id="cityFilter" class="form-select">
+                <option value="all">시/도 선택</option>
+              </select>
+            </div>
+            <div class="col-6 col-xl-3">
+              <select id="districtFilter" class="form-select d-none">
+                <option value="all">구/군 선택</option>
+              </select>
+            </div>
+            <div class="col-6 col-xl-2">
+              <select id="sortFilter" class="form-select">
+                <option value="latest">최신순</option>
+                <option value="deadline">마감일순</option>
+                <option value="company">회사명순</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <small class="text-secondary"
+              >총 <b id="jobCount">0</b>개의 공고가 있습니다</small
+            >
+            <div id="activeFilters" class="d-flex flex-wrap gap-2 small"></div>
           </div>
         </div>
-        <div class="col-6 col-xl-3">
-          <select id="cityFilter" class="form-select">
-            <option value="all">시/도 선택</option>
-          </select>
-        </div>
-        <div class="col-6 col-xl-3">
-          <select id="districtFilter" class="form-select d-none">
-            <option value="all">구/군 선택</option>
-          </select>
-        </div>
-        <div class="col-6 col-xl-2">
-          <select id="sortFilter" class="form-select">
-            <option value="latest">최신순</option>
-            <option value="deadline">마감일순</option>
-            <option value="company">회사명순</option>
-          </select>
-        </div>
-      </div>
+      </section>
 
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <small class="text-secondary"
-          >총 <b id="jobCount">0</b>개의 공고가 있습니다</small
-        >
-        <div id="activeFilters" class="d-flex flex-wrap gap-2 small"></div>
-      </div>
-
-      <!-- 카드 그리드 -->
       <div
         id="jobList"
         class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4"

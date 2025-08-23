@@ -1,104 +1,185 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-bs-them"light">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>면접 연습 - 메인</title>
-    <link rel="stylesheet" href="/static/styles/bootstrap.min.css" />
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      :root {
+        --bg-surface: #fafafa;
+        --text-weak: #6b7280;
+        --card-bg: #ffffff;
+        --primary-600: #2563eb;
+      }
+      body {
+        background: linear-gradient(180deg, var(--bg-surface), #eef1f7 60%);
+      }
+      .navbar-blur {
+        backdrop-filter: blur(6px);
+        background: rgba(255, 255, 255, 0.9) !important;
+      }
+      .feature-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 6px 18px rgba(14, 20, 51, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        height: 100%;
+      }
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(14, 20, 51, 0.12);
+      }
+      .feature-emoji {
+        font-size: 2.75rem;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+      }
+      .text-weak {
+        color: var(--text-weak) !important;
+      }
+      .btn-soft {
+        --bs-btn-color: #fff;
+        --bs-btn-bg: var(--primary-600);
+        --bs-btn-border-color: var(--primary-600);
+        --bs-btn-hover-bg: #1f55c8;
+        --bs-btn-hover-border-color: #1f55c8;
+        --bs-btn-focus-shadow-rgb: 37, 99, 235;
+      }
+      .btn-outline-muted {
+        --bs-btn-color: #111827;
+        --bs-btn-border-color: rgba(0, 0, 0, 0.12);
+        --bs-btn-hover-bg: #f3f4f6;
+        --bs-btn-hover-border-color: rgba(0, 0, 0, 0.18);
+      }
+      footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      @media (min-width: 1200px) {
+        .container {
+          max-width: 1140px;
+        }
+      }
+      @media (min-width: 1400px) {
+        .container {
+          max-width: 1320px;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <!-- NAV -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
-      <div class="container-xxl">
+  <body>
+    <nav
+      class="navbar navbar-expand-lg border-bottom sticky-top navbar-blur py-2"
+    >
+      <div class="container">
         <a class="navbar-brand fw-bold" href="/">면접 연습</a>
         <button
           class="navbar-toggler"
           data-bs-toggle="collapse"
-          data-bs-target="#navMain"
+          data-bs-target="#nv"
+          aria-controls="nv"
+          aria-expanded="false"
+          aria-label="메뉴 열기"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div id="navMain" class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto gap-2">
+        <div id="nv" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
             <li class="nav-item">
-              <a class="nav-link" href="/job-list">채용공고</a>
+              <a class="nav-link text-weak" href="#">도움말</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/user-input">면접 입력</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/profile">개인정보</a>
+              <a class="nav-link text-weak" href="#">문의하기</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- HERO -->
-    <header class="bg-white border-bottom">
-      <div class="container-xxl py-5">
-        <div class="row align-items-center g-4">
-          <div class="col-lg-7">
-            <h1 class="display-6 fw-bold mb-3">
-              AI 기반 면접 준비, 더 간단하게
-            </h1>
-            <p class="text-secondary mb-4">
-              실시간 피드백 · 맞춤형 질문 · 모의 면접까지 한 번에.
-            </p>
-            <div class="d-flex gap-2">
-              <a href="/job-list" class="btn btn-primary">채용공고 보러가기</a>
-              <a href="/user-input" class="btn btn-outline-secondary"
-                >면접 연습 시작</a
-              >
-            </div>
-          </div>
-          <div class="col-lg-5 text-center">
-            <div class="p-5 rounded-4 bg-light border">🎤</div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <main class="py-5 py-md-5">
+      <div class="container">
+        <section class="text-center py-4 py-md-5">
+          <h1 class="display-5 fw-bold mb-3">
+            AI 모의면접으로<br class="d-none d-md-block" />면접 실력을
+            키워보세요
+          </h1>
+          <p class="lead text-weak mx-auto" style="max-width: 720px">
+            실제 면접과 같은 환경에서 개인 맞춤형 피드백을 받아보고<br
+              class="d-none d-md-block"
+            />취업 준비에 한 걸음 더 다가가세요
+          </p>
+        </section>
 
-    <!-- FEATURES -->
-    <main class="container-xxl py-5">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <article class="card h-100 shadow-sm">
-            <div class="card-body">
-              <div class="fs-1 mb-3">💼</div>
-              <h3 class="h5 fw-semibold mb-2">실시간 피드백</h3>
-              <p class="text-secondary small mb-0">
-                답변 품질을 즉시 점검하고 개선점을 제안합니다.
-              </p>
+        <section class="py-2">
+          <div class="row g-4">
+            <div class="col-12 col-md-4">
+              <div class="feature-card h-100">
+                <div class="feature-emoji">💼</div>
+                <h3 class="h5 fw-semibold mb-2">실시간 피드백</h3>
+                <p class="mb-0 text-weak">
+                  면접 중 실시간으로 답변에 대한 피드백을 받을 수 있습니다
+                </p>
+              </div>
             </div>
-          </article>
-        </div>
-        <div class="col-md-4">
-          <article class="card h-100 shadow-sm">
-            <div class="card-body">
-              <div class="fs-1 mb-3">📝</div>
-              <h3 class="h5 fw-semibold mb-2">맞춤형 질문</h3>
-              <p class="text-secondary small mb-0">
-                직무·경력에 맞춘 질문 세트를 자동 생성합니다.
-              </p>
+            <div class="col-12 col-md-4">
+              <div class="feature-card h-100">
+                <div class="feature-emoji">📝</div>
+                <h3 class="h5 fw-semibold mb-2">맞춤형 질문</h3>
+                <p class="mb-0 text-weak">
+                  지원하는 직무와 회사에 맞는 맞춤형 질문을 제공합니다
+                </p>
+              </div>
             </div>
-          </article>
-        </div>
-        <div class="col-md-4">
-          <article class="card h-100 shadow-sm">
-            <div class="card-body">
-              <div class="fs-1 mb-3">📈</div>
-              <h3 class="h5 fw-semibold mb-2">성과 추적</h3>
-              <p class="text-secondary small mb-0">
-                연습 기록을 구조화하여 점수와 피드백을 보관합니다.
-              </p>
+            <div class="col-12 col-md-4">
+              <div class="feature-card h-100">
+                <div class="feature-emoji">📊</div>
+                <h3 class="h5 fw-semibold mb-2">상세한 분석</h3>
+                <p class="mb-0 text-weak">
+                  면접 후 상세한 분석 리포트로 개선점을 확인하세요
+                </p>
+              </div>
             </div>
-          </article>
-        </div>
+          </div>
+        </section>
+
+        <section class="py-4">
+          <div class="row g-3 g-md-4 justify-content-center">
+            <div class="col-12 col-md-4 d-grid">
+              <button
+                class="btn btn-soft btn-lg"
+                onclick="location.href='/user-input'"
+              >
+                면접 시작하기
+              </button>
+            </div>
+            <div class="col-12 col-md-4 d-grid">
+              <button
+                class="btn btn-secondary btn-lg"
+                onclick="location.href='/job-list'"
+              >
+                채용공고 보기
+              </button>
+            </div>
+            <div class="col-12 col-md-4 d-grid">
+              <button
+                class="btn btn-outline-muted btn-lg"
+                onclick="location.href='/profile'"
+              >
+                내 정보 입력
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
 
-    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
-    <script src="/static/js/main.js" defer></script>
+    <footer class="py-4 text-center text-muted small">
+      © 2025 AI 면접 연습 | 팀 Hackerton
+    </footer>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

@@ -4,117 +4,132 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>면접 연습 - 모의면접</title>
-    <link href="/static/styles/bootstrap.min.css" rel="stylesheet" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="/static/styles/bootstrap.bundle.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      .question-card {
+        border-radius: 16px;
+      }
+      .answer-area {
+        min-height: 180px;
+      }
+      .timer-badge {
+        font-variant-numeric: tabular-nums;
+      }
+      .record-pulse {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #dc3545;
+        animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 0 12px rgba(220, 53, 69, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="container-fluid">
-      <!-- Navigation -->
-      <nav
-        class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top"
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm fixed-top">
+      <div
+        class="container-xxl d-flex align-items-center justify-content-between"
+        style="height: 64px"
       >
-        <div class="flex items-center justify-between px-4 h-16">
-          <div>
-            <h2 class="text-xl font-semibold">모의면접 진행중</h2>
-            <p class="text-sm text-muted-foreground">
-              <span id="interviewCompany">회사명</span> -
-              <span id="interviewPosition">직무명</span>
-            </p>
-          </div>
-          <div
-            class="bg-primary text-primary-foreground px-3 py-1 rounded-lg font-mono text-sm font-semibold"
+        <div>
+          <div class="fw-semibold">모의면접 진행중</div>
+          <small class="text-secondary"
+            ><span id="interviewCompany">회사명</span> ·
+            <span id="interviewPosition">직무명</span></small
           >
-            <span id="timer">00:00</span>
-          </div>
         </div>
-      </nav>
-
-      <main class="max-w-md mx-auto flex flex-col h-[calc(100vh-64px)]">
-        <!-- Question Section -->
-        <div class="bg-muted mx-4 mt-6 p-5 rounded-lg">
-          <div class="text-sm text-muted-foreground mb-3">
-            질문 <span id="currentQuestion">1</span> /
-            <span id="totalQuestions">5</span>
-          </div>
-          <div id="questionText" class="text-base font-medium leading-relaxed">
-            자기소개를 간단히 해주세요.
-          </div>
-        </div>
-
-        <!-- Recording Indicator -->
-        <div
-          id="recordingSection"
-          class="flex justify-center items-center py-8"
+        <span class="badge text-bg-primary timer-badge px-3 py-2" id="timer"
+          >00:00</span
         >
+      </div>
+    </nav>
+
+    <main class="container-xxl" style="padding-top: 88px; padding-bottom: 24px">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+          <div class="card question-card bg-light border-0 mb-3">
+            <div class="card-body">
+              <div class="small text-secondary mb-2">
+                질문 <span id="currentQuestion">1</span> /
+                <span id="totalQuestions">5</span>
+              </div>
+              <div id="questionText" class="fw-semibold">
+                자기소개를 간단히 해주세요.
+              </div>
+            </div>
+          </div>
+
           <div
-            id="recordingIndicator"
-            class="flex flex-col items-center gap-3 text-muted-foreground"
-            style="display: none"
+            id="recordingSection"
+            class="d-flex justify-content-center align-items-center py-3"
           >
             <div
-              class="recording-pulse w-15 h-15 bg-primary rounded-full"
-            ></div>
-            <span class="text-sm">답변을 말씀해주세요</span>
-          </div>
-        </div>
-
-        <!-- Answer Section -->
-        <div class="flex-1 px-4">
-          <textarea
-            id="answerText"
-            placeholder="답변을 입력하거나 음성으로 답변해주세요..."
-            rows="6"
-            class="w-full h-40 p-4 border border-border rounded-lg bg-input-background resize-none"
-          ></textarea>
-        </div>
-
-        <!-- Controls -->
-        <div class="p-4 border-t border-border">
-          <div class="flex gap-3 items-center justify-between mb-4">
-            <button
-              id="recordButton"
-              onclick="toggleRecording()"
-              class="flex items-center gap-2 bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity"
+              id="recordingIndicator"
+              class="d-none align-items-center gap-2 text-secondary"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+              <span class="record-pulse"></span
+              ><span class="small">녹음 중... 말씀해주세요</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <textarea
+              id="answerText"
+              class="form-control answer-area"
+              placeholder="답변을 입력하거나 음성으로 답변해주세요..."
+              rows="6"
+            ></textarea>
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex gap-2 justify-content-between mb-3">
+              <button
+                id="recordButton"
+                class="btn btn-danger d-flex align-items-center gap-2"
+                onclick="toggleRecording()"
               >
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"
-                />
-              </svg>
-              음성 답변
-            </button>
-            <button
-              onclick="nextQuestion()"
-              class="bg-primary text-primary-foreground py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity"
-            >
-              다음 질문
-            </button>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="h-1 bg-muted rounded-full overflow-hidden">
-            <div
-              id="progressFill"
-              class="h-full bg-primary transition-all duration-300 rounded-full"
-              style="width: 20%"
-            ></div>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"
+                  />
+                </svg>
+                음성 답변
+              </button>
+              <button class="btn btn-primary" onclick="nextQuestion()">
+                다음 질문
+              </button>
+            </div>
+            <div class="progress" style="height: 6px">
+              <div
+                id="progressFill"
+                class="progress-bar"
+                style="width: 20%"
+              ></div>
+            </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
 
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/data.js"></script>
     <script src="/static/js/interview.js"></script>
   </body>

@@ -5,11 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>공고 상세</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <style>
+      .rounded-16 {
+        border-radius: 16px;
+      }
+      .logo-box {
+        width: 96px;
+        height: 96px;
+        overflow: hidden;
+      }
+      .desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+      .desc * {
+        max-width: 100%;
+      }
+      .desc img,
+      .desc video,
+      .desc iframe {
+        max-width: 100%;
+        height: auto;
+      }
+      .desc pre,
+      .desc code {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .badge-contrast {
+        background: #eef2ff;
+        color: #111827;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+      }
+      .kv-table th {
+        width: 160px;
+      }
+      .codebox {
+        white-space: pre-wrap;
+      }
+    </style>
   </head>
   <body class="bg-light">
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-xxl d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary btn-sm" onclick="goBack()">
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          onclick="history.back()"
+        >
           ←
         </button>
         <span class="fw-semibold">채용공고 상세</span>
@@ -18,65 +60,125 @@
 
     <main class="container-xxl py-4">
       <!-- 헤더 -->
-      <section class="card shadow-sm mb-4" style="border-radius: 16px">
+      <section class="card shadow-sm rounded-16 mb-4">
         <div class="card-body">
-          <div class="d-flex gap-3">
+          <div class="d-flex gap-3 align-items-start">
             <div
               id="companyLogo"
-              class="border rounded bg-white flex-shrink-0 d-flex align-items-center justify-content-center"
-              style="width: 96px; height: 96px; overflow: hidden"
-            >
-              <!-- 로고 이미지 동적 삽입 -->
-            </div>
+              class="border rounded bg-white flex-shrink-0 d-flex align-items-center justify-content-center logo-box"
+            ></div>
             <div class="flex-grow-1 min-w-0">
               <h1 id="jobTitle" class="h5 mb-1 text-truncate">제목</h1>
               <div id="jobCompany" class="text-secondary small mb-2">
                 회사명
               </div>
               <div class="d-flex flex-wrap gap-2 align-items-center small">
-                <span class="badge text-bg-light border" id="jobLocation"
+                <span id="jobLocation" class="badge badge-contrast"
                   >근무지</span
                 >
-                <span class="badge text-bg-light border" id="jobDeadline"
+                <span id="jobDeadline" class="badge badge-contrast"
                   >마감일</span
                 >
+                <span
+                  id="jobEmpType"
+                  class="badge badge-contrast d-none"
+                ></span>
               </div>
             </div>
-            <div class="ms-auto d-none d-md-flex align-items-start">
-              <a id="applyButton" href="#" class="btn btn-primary">지원하기</a>
+            <div class="ms-auto d-none d-md-flex">
+              <a
+                id="applyButton"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+                >지원하기</a
+              >
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 태그 -->
-      <section class="card shadow-sm mb-4" style="border-radius: 16px">
+      <!-- 요약 텍스트 섹션들 -->
+      <section id="sections" class="vstack gap-4 mb-4"></section>
+
+      <!-- 모집분야 -->
+      <section
+        id="recruitListSection"
+        class="card shadow-sm rounded-16 mb-4 d-none"
+      >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">태그</h3>
-          <div id="jobTags" class="d-flex flex-wrap gap-2 small">
-            <!-- tags -->
-          </div>
+          <h3 class="h6 fw-semibold mb-3">모집분야</h3>
+          <div id="recruitListBody" class="vstack gap-3"></div>
         </div>
       </section>
 
-      <!-- 상세 설명 -->
-      <section class="card shadow-sm" style="border-radius: 16px">
+      <!-- 직종 코드 -->
+      <section
+        id="jobsCodeSection"
+        class="card shadow-sm rounded-16 mb-4 d-none"
+      >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">상세 내용</h3>
-          <div id="jobDescriptionContent" class="small"></div>
+          <h3 class="h6 fw-semibold mb-3">직종</h3>
+          <div id="jobsCodeBody" class="row row-cols-1 row-cols-md-2 g-2"></div>
+        </div>
+      </section>
+
+      <!-- 첨부파일 -->
+      <section
+        id="attachmentsSection"
+        class="card shadow-sm rounded-16 mb-4 d-none"
+      >
+        <div class="card-body">
+          <h3 class="h6 fw-semibold mb-3">첨부파일</h3>
+          <div id="attachmentsBody" class="vstack gap-3"></div>
+        </div>
+      </section>
+
+      <!-- 기타 상세(예쁘게 꾸민 나머지 정보) -->
+      <section id="rawAllSection" class="card shadow-sm rounded-16">
+        <div class="card-body">
+          <h3 class="h6 fw-semibold mb-3">기타 상세</h3>
+          <div id="rawAllBody" class="small"></div>
         </div>
       </section>
 
       <!-- 모바일 지원 버튼 -->
       <div class="d-grid gap-2 d-md-none container-xxl px-0 my-4">
-        <a id="applyButtonMobile" href="#" class="btn btn-primary btn-lg"
+        <a
+          id="applyButtonMobile"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary btn-lg"
           >지원하기</a
         >
       </div>
     </main>
 
-    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
-    <script src="/static/js/api.js" defer></script>
-    <script src="/static/js/job_detail.js" defer></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/job_detail.js?v=20250823"></script>
+
+    <!-- 본문 내 a 태그는 새 탭 -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const fixTargets = () => {
+          document
+            .querySelectorAll(
+              "#sections a[href], #recruitListSection a[href], #attachmentsSection a[href], #rawAllSection a[href]"
+            )
+            .forEach((a) => {
+              a.target = "_blank";
+              a.rel = "noopener noreferrer";
+            });
+        };
+        fixTargets();
+        new MutationObserver(fixTargets).observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      });
+    </script>
   </body>
 </html>

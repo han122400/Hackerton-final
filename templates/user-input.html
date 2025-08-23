@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>면접 정보 입력</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <style>
+      .rounded-16 {
+        border-radius: 16px;
+      }
+    </style>
   </head>
   <body class="bg-light">
     <nav class="navbar bg-white border-bottom sticky-top">
@@ -22,8 +27,8 @@
     <main class="container-xxl py-4">
       <form
         id="interviewForm"
-        class="card shadow-sm mx-auto"
-        style="max-width: 900px; border-radius: 16px"
+        class="card shadow-sm mx-auto rounded-16"
+        style="max-width: 900px"
       >
         <div class="card-body">
           <div class="row g-3">
@@ -47,7 +52,7 @@
                 placeholder="예: 00주식회사"
               />
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
               <label for="notes" class="form-label">기타 메모</label>
               <textarea
                 id="notes"
