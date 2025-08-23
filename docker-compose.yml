@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: hackerton-api
+    ports:
+      - '8000:8000'
+    # 로컬 개발 땐 주석 해제하면 코드 변경 즉시 반영하려고 --reload 사용 가능
+    # command: ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    environment:
+      - TZ=Asia/Seoul
+    env_file:
+      - .env # 여기서 환경변수 주입 (.env는 깃에 올리지 말기)
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 20s
+      timeout: 3s
+      retries: 5
