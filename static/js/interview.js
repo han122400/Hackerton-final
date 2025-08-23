@@ -84,10 +84,26 @@ function nextQuestion() {
 }
 
 // ===== 카메라/마이크 권한 & 스트림 획득 =====
+// ===== 카메라/마이크 권한 & 스트림 획득 =====
 async function getMediaStream() {
   if (currentStream) return currentStream;
 
   try {
+    // 권한 상태 확인
+    if (navigator.permissions) {
+      try {
+        const cam = await navigator.permissions.query({ name: "camera" });
+        const mic = await navigator.permissions.query({ name: "microphone" });
+        if (cam.state === "denied" || mic.state === "denied") {
+          alert("브라우저 설정에서 카메라/마이크 차단을 해제해주세요.");
+          return null;
+        }
+      } catch (e) {
+        console.warn("권한 상태 확인 불가:", e);
+      }
+    }
+
+    // 권한 요청 → 팝업 자동 표시
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { width: { ideal: 1280 }, height: { ideal: 720 } },
       audio: true,
@@ -102,9 +118,9 @@ async function getMediaStream() {
     }
     return stream;
   } catch (err) {
+    console.error("getUserMedia error:", err);
     alert("카메라/마이크 권한이 필요합니다. 브라우저 설정에서 허용해주세요.");
-    console.error(err);
-    throw err;
+    return null;
   }
 }
 
