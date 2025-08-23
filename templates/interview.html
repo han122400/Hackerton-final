@@ -11,14 +11,6 @@
       .rounded-16 {
         border-radius: 16px;
       }
-      .badge-ghost {
-        background: rgba(2, 6, 23, 0.06);
-        color: #0f172a;
-        border: 1px solid rgba(2, 6, 23, 0.08);
-      }
-      .mini-kpi {
-        min-width: 110px;
-      }
       .video-wrap {
         background: #000;
         border-radius: 12px;
@@ -28,13 +20,56 @@
         color: #64748b;
         font-size: 12px;
       }
+      .mini-kpi {
+        min-width: 110px;
+      }
+
+      /* ── 녹음 중 애니메이션 동그라미 ─────────────────────────── */
+      /* JS가 #recordingIndicator의 d-none을 제거/추가하여 표시 제어 */
+      #recordingIndicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.6rem;
+        border-radius: 999px;
+        background: #0f172a; /* 진한 남색 캡슐 */
+        color: #e2e8f0;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        font-size: 0.875rem;
+        line-height: 1;
+      }
+      #recordingIndicator .dot {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        background: #ef4444; /* 빨강 점 */
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+        animation: pulse 1.25s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+        }
+        70% {
+          transform: scale(1.25);
+          box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+      }
+
+      /* STT 박스 */
       .stt-box {
-        height: 260px;
+        min-height: 220px;
+        max-height: 360px;
         overflow: auto;
         border-radius: 12px;
         background: #0f172a;
         color: #e2e8f0;
-        padding: 12px;
+        padding: 14px;
         box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
       }
       .stt-line {
@@ -48,30 +83,10 @@
           order: 2;
         }
       }
-
-      .recording-pulse {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        background-color: #16a34a; /* 부트스트랩 success 색상과 유사 */
-        border-radius: 50%;
-        animation: pulse 1.5s infinite ease-in-out;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(0.9);
-          opacity: 0.7;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 1;
-        }
-      }
     </style>
   </head>
   <body class="bg-light">
+    <!-- 상단 바 -->
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand fw-semibold" href="/">면접 연습</a>
@@ -80,20 +95,15 @@
             <span id="interviewCompany">회사명</span> ·
             <span id="interviewPosition">직무명</span>
           </div>
-          <button
-            type="button"
-            class="btn btn-outline-secondary btn-sm"
-            onclick="location.href='/'"
-          >
-            뒤로
-          </button>
         </div>
       </div>
     </nav>
 
     <main class="container py-4">
       <div class="row g-4">
+        <!-- 좌측: 진행도 + 카메라 프리뷰 -->
         <div class="col-12 col-lg-7 col-order-1">
+          <!-- 진행도 & 타이머 + 🔴녹음표시 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div
@@ -105,8 +115,15 @@
                     >5</span
                   >
                 </div>
-                <div class="badge text-bg-dark">
-                  ⏱ <span id="timer">00:00</span>
+                <div class="d-flex align-items-center gap-2">
+                  <!-- 🔴 JS가 d-none 제거 시 보임 -->
+                  <span id="recordingIndicator" class="d-none">
+                    <span class="dot" aria-hidden="true"></span>
+                    <span>녹음 중</span>
+                  </span>
+                  <span class="badge text-bg-dark"
+                    >⏱ <span id="timer">00:00</span></span
+                  >
                 </div>
               </div>
               <div class="progress" style="height: 10px">
@@ -119,7 +136,8 @@
             </div>
           </div>
 
-          <div class="card border-0 shadow-sm rounded-16 mb-3">
+          <!-- 카메라 프리뷰 -->
+          <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
               <div
                 class="d-flex justify-content-between align-items-center mb-2"
@@ -128,6 +146,7 @@
                 <div class="hint">권한 허용 후 자동 시작</div>
               </div>
               <div class="video-wrap">
+                <!-- camera_ai.js가 사용 -->
                 <video
                   id="video"
                   class="w-100"
@@ -136,6 +155,7 @@
                   muted
                 ></video>
                 <canvas id="canvas" class="d-none"></canvas>
+                <!-- 필요 시 동일 스트림 공유 -->
                 <video
                   id="livePreview"
                   class="w-100 d-none"
@@ -144,60 +164,13 @@
                   muted
                 ></video>
               </div>
-
-              <div class="d-flex align-items-center gap-2 mt-3">
-                <button id="recordButton" type="button" class="btn btn-danger">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  음성 답변
-                </button>
-
-                <span
-                  id="recordingIndicator"
-                  class="recording-pulse d-none"
-                ></span>
-
-                <div class="ms-auto d-flex gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="nextQuestion()"
-                  >
-                    다음 질문
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    onclick="completeInterview()"
-                  >
-                    면접 종료
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card border-0 shadow-sm rounded-16">
-            <div class="card-body">
-              <div class="h6 fw-semibold mb-2">녹화된 답변</div>
-              <div id="playbackList" class="vstack gap-2">
-                <div class="text-secondary small">
-                  아직 녹화된 답변이 없습니다.
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
+        <!-- 우측: 현재 질문 / KPI / STT -->
         <div class="col-12 col-lg-5 col-order-2">
+          <!-- 현재 질문 -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div class="h6 fw-semibold mb-2">현재 질문</div>
@@ -205,17 +178,18 @@
             </div>
           </div>
 
+          <!-- 현재 상태 KPI -->
           <div class="card border-0 shadow-sm rounded-16 mb-3">
             <div class="card-body">
               <div class="h6 fw-semibold mb-3">현재 상태</div>
               <div class="d-flex flex-wrap gap-2">
-                <span class="badge badge-ghost mini-kpi"
-                  >방향 <strong id="dir">알 수 없음</strong></span
+                <span class="badge bg-light text-dark mini-kpi"
+                  >방향 <strong id="dir">-</strong></span
                 >
-                <span class="badge badge-ghost mini-kpi"
-                  >시선 <strong id="gaze">알 수 없음</strong></span
+                <span class="badge bg-light text-dark mini-kpi"
+                  >시선 <strong id="gaze">-</strong></span
                 >
-                <span class="badge badge-ghost mini-kpi"
+                <span class="badge bg-light text-dark mini-kpi"
                   >미소 <strong id="smile">-</strong></span
                 >
                 <span class="badge text-bg-success mini-kpi"
@@ -226,6 +200,7 @@
             </div>
           </div>
 
+          <!-- STT(음성 → 텍스트) -->
           <div class="card border-0 shadow-sm rounded-16">
             <div class="card-body">
               <div
@@ -241,10 +216,22 @@
               </div>
             </div>
           </div>
+
+          <!-- 하단 컨트롤: '다음 질문'만 유지 -->
+          <div class="d-grid mt-3">
+            <button
+              type="button"
+              class="btn btn-primary btn-lg"
+              onclick="nextQuestion()"
+            >
+              다음 질문
+            </button>
+          </div>
         </div>
       </div>
     </main>
 
+    <!-- JS -->
     <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/data.js"></script>
     <script src="/static/js/interview.js"></script>

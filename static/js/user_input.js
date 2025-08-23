@@ -48,25 +48,20 @@ function handleFormSubmit(e) {
     company,
     notes,
     userName: localStorage.getItem("userName") || "",
-<<<<<<< HEAD
     resume: resumeName, // ✅ 파일명
     coverLetter: coverLetter || null, // ✅ 텍스트
     portfolio: portfolioName || null, // ✅ 파일명
     startTime: new Date(),
-=======
     startTime: new Date().toISOString(),
->>>>>>> b43a0949c46b6e12e504e1e8c7849c1dddad3248
     answers: [],
     duration: 0,
   };
 
-<<<<<<< HEAD
   // 로컬 저장 (interview.js가 여기서 읽어감)
   localStorage.setItem("interviewData", JSON.stringify(interviewData));
 
   // 서버에도 전송 (현재는 JSON으로 파일명/본문만 보냄)
   // 실제 파일 업로드가 필요하면, multipart/form-data 엔드포인트 별도 구현 필요.
-=======
   // 로컬 저장 (파일 이름만)
   localStorage.setItem(
     "interviewData",
@@ -87,17 +82,13 @@ function handleFormSubmit(e) {
   }
 
   // 서버로 전송
->>>>>>> b43a0949c46b6e12e504e1e8c7849c1dddad3248
   fetch("/api/user-input", {
     method: "POST",
     body: uploadData, // FormData 사용
   })
     .then((res) => res.json().catch(() => ({ ok: false })))
     .then(() => {
-<<<<<<< HEAD
       // 서버 저장 실패여도 로컬 데이터만으로 진행
-=======
->>>>>>> b43a0949c46b6e12e504e1e8c7849c1dddad3248
       window.location.href = "/interview";
     })
     .catch(() => {
@@ -120,15 +111,12 @@ function hydrateFromSelectedJob() {
   }
 }
 
-<<<<<<< HEAD
 document.addEventListener("DOMContentLoaded", () => {
   hydrateFromSelectedJob();
-=======
 // DOM 로드 후 초기화
 if (document && typeof document.addEventListener === "function") {
   document.addEventListener("DOMContentLoaded", () => {
     hydrateFromSelectedJob();
->>>>>>> b43a0949c46b6e12e504e1e8c7849c1dddad3248
 
   const form = document.getElementById("interviewForm");
   if (form) {
