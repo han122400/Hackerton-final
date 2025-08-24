@@ -74,7 +74,7 @@
         white-space: pre-line;
       }
       .stt-box:empty::before {
-        content: "말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.";
+        content: '말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.';
         color: #94a3b8;
       }
 
@@ -194,8 +194,8 @@
               >
                 <h2 class="h6 mb-0">현재 상태</h2>
                 <div class="d-flex align-items-center gap-2">
-                  <span class="text-secondary small">녹음 중</span>
-                  <div id="recDot" class="rec-indicator"></div>
+                  <span class="text-secondary small">카메라 분석 중</span>
+                  <div id="recDot" class="rec-indicator active"></div>
                 </div>
               </div>
 
@@ -227,9 +227,9 @@
               </div>
 
               <div class="mt-3 small text-secondary">
-                ※ 1초 간격으로 갱신됩니다.
+                ※ 1초 간격으로 실시간 분석됩니다.
                 <span class="ms-2"
-                  >태도 점수: <strong id="score">0</strong></span
+                  >전체 태도 점수: <strong id="score">0</strong>/100점</span
                 >
               </div>
             </div>
@@ -251,8 +251,12 @@
                   음성 답변
                 </button>
               </div>
-              <div id="realtimeTranscript" class="stt-box" aria-live="polite" contenteditable="true"></div>
-
+              <div
+                id="realtimeTranscript"
+                class="stt-box"
+                aria-live="polite"
+                contenteditable="true"
+              ></div>
             </div>
           </section>
         </div>

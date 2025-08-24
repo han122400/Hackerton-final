@@ -26,7 +26,9 @@ canvas.height = 360
 
 // ws / wss 자동 선택 (로컬 http는 ws://, 배포 https는 wss://)
 const WS_URL =
-  (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws'
+  (location.protocol === 'https:' ? 'wss://' : 'ws://') +
+  location.host +
+  '/api/ws'
 const socket = new WebSocket(WS_URL)
 
 socket.onopen = () => appendLog('🔌 WebSocket 연결됨')
@@ -46,12 +48,17 @@ socket.onmessage = (event) => {
     dirEl.textContent = r.direction ?? '-' // 예: '정면' / '왼쪽 측면' / '오른쪽 측면'
     gazeEl.textContent = r.gaze ?? '-' // 예: '센터' / '좌' / '우' / '상' / '하'
 
-    // 예: 미소 스코어(0~1 사이 숫자). 숫자가 아니면 화면엔 '-' 표시
-    if (typeof r.smile === 'number') smileEl.textContent = r.smile.toFixed(2)
-    else smileEl.textContent = '-'
+    // 미소 점수를 100점 만점으로 계산
+    let smileScore = 0
+    if (typeof r.smile === 'number') {
+      smileScore = Math.round(r.smile * 100) // 0~1을 0~100으로 변환
+      smileEl.textContent = smileScore + '점'
+    } else {
+      smileEl.textContent = '-'
+    }
 
     // ─────────────────────────────────────────────────────
-    // [여기가 점수 계산 로직] — 100점 만점의 간단 가중치 예시
+    // [여기가 기존 전체 점수 계산 로직] — 100점 만점의 간단 가중치 예시
     //
     // 가중치 규칙:
     // - 시선이 '센터'면 50점, 아니면 25점
