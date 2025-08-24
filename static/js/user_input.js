@@ -217,8 +217,8 @@ async function sendInterviewStart(interviewData) {
       console.log('면접 시작 응답:', startData.answer)
     }
 
-    // 2단계: 3초 대기 후 interviewData JSON 전송
-    console.log('3초 후 JSON 데이터 전송...')
+    // 2단계: 1초 대기 후 interviewData JSON 전송
+    console.log('1초 후 JSON 데이터 전송...')
     setTimeout(async () => {
       try {
         const jsonPrompt = JSON.stringify({
@@ -248,7 +248,7 @@ async function sendInterviewStart(interviewData) {
         console.error('JSON 전송 오류:', err)
         window.location.href = '/interview'
       }
-    }, 3000)
+    }, 1000)
   } catch (err) {
     console.error('면접 시작 전송 오류:', err)
     // 오류 발생 시에도 면접 페이지로 이동
