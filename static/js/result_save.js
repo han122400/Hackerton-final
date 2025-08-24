@@ -21,7 +21,7 @@ async function saveResult() {
 
     if (res.ok) {
       alert("DB에 저장되었습니다.");
-      window.location.href = "index.html";
+      window.location.href = "/";
     } else {
       const err = await res.text();
       alert("저장 실패: " + err);
