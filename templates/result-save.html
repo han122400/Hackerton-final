@@ -1,124 +1,126 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>면접 결과 저장</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-    }
-    .form-container {
-      max-width: 400px;
-      margin: auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #6366f1;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #rgba(0, 128, 255, 1);
-    }
-    .toast {
-      visibility: hidden;
-      min-width: 200px;
-      margin-left: -100px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 8px;
-      padding: 12px;
-      position: fixed;
-      z-index: 1;
-      left: 50%;
-      bottom: 30px;
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.5s, bottom 0.5s;
-    }
-    .toast.show {
-      visibility: visible;
-      opacity: 1;
-      bottom: 50px;
-    }
-  </style>
-</head>
-<body>
-  <div class="form-container">
-    <h2>사용자 정보 입력</h2>
-    <form id="userForm">
-      <label for="name">이름</label>
-      <input type="text" id="name" name="name" required />
+  <head>
+    <meta charset="UTF-8" />
+    <title>면접 결과 저장</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+      .form-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #6366f1;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #rgba(0, 128, 255, 1);
+      }
+      .toast {
+        visibility: hidden;
+        min-width: 200px;
+        margin-left: -100px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 8px;
+        padding: 12px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.5s, bottom 0.5s;
+      }
+      .toast.show {
+        visibility: visible;
+        opacity: 1;
+        bottom: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>사용자 정보 입력</h2>
+      <form id="userForm">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required />
 
-      <label for="email">이메일</label>
-      <input type="email" id="email" name="email" required />
+        <label for="email">이메일</label>
+        <input type="email" id="email" name="email" required />
 
-      <button type="submit">저장</button>
-    </form>
-  </div>
+        <button type="submit">저장</button>
+      </form>
+    </div>
 
-  <div id="toast" class="toast">저장되었습니다!</div>
+    <div id="toast" class="toast">저장되었습니다!</div>
 
-  <script>
-    // 토스트 메시지 표시 함수
-    function showToast(message, callback) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.className = "toast show";
-      setTimeout(() => {
-        toast.className = "toast";
-        if (callback) callback();
-      }, 1500);
-    }
-
-    document.getElementById("userForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-
-      if (!name || !email) {
-        showToast("이름과 이메일을 모두 입력하세요.");
-        return;
+    <script>
+      // 토스트 메시지 표시 함수
+      function showToast(message, callback) {
+        const toast = document.getElementById('toast')
+        toast.textContent = message
+        toast.className = 'toast show'
+        setTimeout(() => {
+          toast.className = 'toast'
+          if (callback) callback()
+        }, 1500)
       }
 
-      // 이메일 로컬 저장
-      localStorage.setItem("userEmail", email);
+      document
+        .getElementById('userForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault()
 
-      // 저장 메시지 후 index.html 이동
-      showToast("저장되었습니다!", () => {
-        window.location.href = "/";
-      });
-    });
+          const name = document.getElementById('name').value.trim()
+          const email = document.getElementById('email').value.trim()
 
-    // 페이지 로드 시 저장된 값 불러오기
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedEmail = localStorage.getItem("userEmail");
-      const savedName = localStorage.getItem("userName");
-      if (savedEmail) document.getElementById("email").value = savedEmail;
-      if (savedName) document.getElementById("name").value = savedName;
-    });
-  </script>
-</body>
+          if (!name || !email) {
+            showToast('이름과 이메일을 모두 입력하세요.')
+            return
+          }
+
+          // 이메일 로컬 저장
+          localStorage.setItem('userEmail', email)
+
+          // 저장 메시지 후 index.html 이동
+          showToast('저장되었습니다!', () => {
+            window.location.href = '/'
+          })
+        })
+
+      // 페이지 로드 시 저장된 값 불러오기
+      window.addEventListener('DOMContentLoaded', () => {
+        const savedEmail = localStorage.getItem('userEmail')
+        const savedName = localStorage.getItem('userName')
+        if (savedEmail) document.getElementById('email').value = savedEmail
+        if (savedName) document.getElementById('name').value = savedName
+      })
+    </script>
+  </body>
 </html>
