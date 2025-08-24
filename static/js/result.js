@@ -43,6 +43,15 @@ function setTextByIds(ids, value) {
   })
 }
 
+function setScoreBar(score) {
+  const bar = document.getElementById('scoreBar');
+  if(bar){
+    const val = Math.max(0, Math.min(score ?? 0, 100));
+    bar.style.width = val + '%';
+    bar.setAttribute('aria-valuenow', val);
+  }
+}
+
 function setVerticalBar(idFill, score) {
   const fillEl = document.getElementById(idFill)
   if (fillEl) {
@@ -188,6 +197,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 총점
   setTextByIds(['scoreValue'], interviewResult.overallScore)
+
+  // 총점 그래프 (가로)
+  setScoreBar(interviewResult.overallScore)
 
   // 그래프
   const df = interviewResult.detailFeedback || {}
