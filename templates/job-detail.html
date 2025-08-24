@@ -3,22 +3,44 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>공고 상세</title>
+    <title>채용공고 상세</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
     <style>
+      body {
+        background: #f6f7fb;
+      }
       .rounded-16 {
         border-radius: 16px;
+      }
+      .shadow-soft {
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
       }
       .logo-box {
         width: 96px;
         height: 96px;
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
         background: #fff;
       }
+      .title {
+        font-weight: 800;
+      }
+      .chip {
+        background: #eef2ff;
+        color: #111827;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 999px;
+        padding: 0.35rem 0.7rem;
+        font-weight: 600;
+      }
       .desc {
-        font-size: 0.95rem;
-        line-height: 1.6;
+        font-size: 0.98rem;
+        line-height: 1.7;
+      }
+      .desc pre,
+      .desc code {
+        white-space: pre-wrap;
+        word-break: break-word;
       }
       .desc img,
       .desc video,
@@ -26,23 +48,37 @@
         max-width: 100%;
         height: auto;
       }
-      .desc pre,
-      .desc code {
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-      .badge-contrast {
-        background: #eef2ff;
-        color: #111827;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-      }
       .kv-table th {
         width: 160px;
       }
+      .section-card .card-body {
+        padding: 1.25rem;
+      }
+      .section-card h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+      }
+      .list-dense li {
+        margin-bottom: 0.25rem;
+      }
+      .step-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #0d6efd;
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+      .badge-soft {
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+      }
     </style>
   </head>
-  <body class="bg-light">
-    <!-- 헤더 -->
+  <body>
+    <!-- 상단 바 -->
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-xxl d-flex align-items-center gap-2">
         <button
@@ -53,66 +89,94 @@
         </button>
         <span class="fw-semibold">채용공고 상세</span>
         <div class="ms-auto d-none d-md-block">
-          <!-- ✅ 버튼: 지원하기 → 이 공고로 면접보기 -->
-          <button id="interviewBtn" type="button" class="btn btn-primary">
+          <button id="interviewBtn" class="btn btn-primary">
             이 공고로 면접보기
           </button>
         </div>
       </div>
     </nav>
 
-    <main class="container-xxl py-4">
-      <!-- 상단 요약 -->
-      <section class="card shadow-sm rounded-16 mb-4">
-        <div class="card-body">
-          <div class="d-flex gap-3 align-items-start">
+    <main class="container-xxl py-4 py-md-5">
+      <!-- 헤더 -->
+      <section class="card rounded-16 shadow-soft mb-4 border-0">
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex gap-3 gap-md-4 align-items-start">
             <div
               id="companyLogo"
-              class="logo-box d-flex align-items-center justify-content-center border"
+              class="logo-box border d-flex align-items-center justify-content-center flex-shrink-0"
             ></div>
             <div class="flex-grow-1 min-w-0">
-              <h1 id="jobTitle" class="h5 mb-1 text-truncate">제목</h1>
-              <div id="jobCompany" class="text-secondary small mb-2">
-                회사명
+              <h1 id="jobTitle" class="title h4 mb-2 text-truncate">-</h1>
+              <div class="text-secondary small mb-2">
+                <span id="jobCompany">-</span>
               </div>
-              <div class="d-flex flex-wrap gap-2 align-items-center small">
-                <span id="jobLocation" class="badge badge-contrast"
-                  >근무지</span
-                >
-                <span id="jobDeadline" class="badge badge-contrast"
-                  >마감일</span
-                >
-                <span
-                  id="jobEmpType"
-                  class="badge badge-contrast d-none"
-                ></span>
+              <div id="chipRow" class="d-flex flex-wrap gap-2">
+                <span id="corpType" class="chip d-none"></span>
+                <span id="jobLocation" class="chip">-</span>
+                <span id="jobDeadline" class="chip">-</span>
+                <span id="jobEmpType" class="chip d-none"></span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 상세 섹션들 (렌더링 대상 컨테이너) -->
+      <!-- 기본 정보(요약) -->
+      <section
+        id="basicInfoSection"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
+      >
+        <div class="card-body">
+          <h3>기본 정보(요약)</h3>
+          <div id="basicInfoBody" class="table-responsive">
+            <!-- JS에서 key-value 표로 채움 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 주요 텍스트 섹션(요약/안내/제출/접수/문의/기타) -->
       <section id="sections" class="vstack gap-4 mb-4"></section>
 
       <!-- 모집분야 -->
       <section
         id="recruitListSection"
-        class="card shadow-sm rounded-16 mb-4 d-none"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
       >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">모집분야</h3>
+          <h3>모집분야</h3>
           <div id="recruitListBody" class="vstack gap-3"></div>
+        </div>
+      </section>
+
+      <!-- 전형 절차/일정 -->
+      <section
+        id="processSection"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
+      >
+        <div class="card-body">
+          <h3>전형 절차/일정</h3>
+          <div id="processBody" class="vstack gap-2"></div>
+        </div>
+      </section>
+
+      <!-- 자기소개(문항) -->
+      <section
+        id="selfIntroSection"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
+      >
+        <div class="card-body">
+          <h3>자기소개(문항)</h3>
+          <ol id="selfIntroBody" class="list-dense"></ol>
         </div>
       </section>
 
       <!-- 직종 -->
       <section
         id="jobsCodeSection"
-        class="card shadow-sm rounded-16 mb-4 d-none"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
       >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">직종</h3>
+          <h3>직종</h3>
           <div id="jobsCodeBody" class="row row-cols-1 row-cols-md-2 g-2"></div>
         </div>
       </section>
@@ -120,57 +184,34 @@
       <!-- 첨부파일 -->
       <section
         id="attachmentsSection"
-        class="card shadow-sm rounded-16 mb-4 d-none"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
       >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">첨부파일</h3>
+          <h3>첨부파일</h3>
           <div id="attachmentsBody" class="vstack gap-3"></div>
         </div>
       </section>
 
-      <!-- 기타 상세 -->
-      <section id="rawAllSection" class="card shadow-sm rounded-16">
+      <!-- 관련 링크 -->
+      <section
+        id="linksSection"
+        class="card rounded-16 shadow-soft mb-4 border-0 section-card d-none"
+      >
         <div class="card-body">
-          <h3 class="h6 fw-semibold mb-3">기타 상세</h3>
-          <div id="rawAllBody" class="small"></div>
+          <h3>관련 링크</h3>
+          <div id="linksBody" class="d-flex flex-column gap-2"></div>
         </div>
       </section>
 
-      <!-- 모바일 버튼 -->
+      <!-- 모바일 CTA -->
       <div class="d-grid gap-2 d-md-none my-4">
-        <button
-          id="interviewBtnMobile"
-          type="button"
-          class="btn btn-primary btn-lg"
-        >
+        <button id="interviewBtnMobile" class="btn btn-primary btn-lg">
           이 공고로 면접보기
         </button>
       </div>
     </main>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/job_detail.js?v=final"></script>
-
-    <!-- 본문 링크 새탭 열기 -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const fixTargets = () => {
-          document
-            .querySelectorAll(
-              "#sections a[href], #recruitListSection a[href], #attachmentsSection a[href], #rawAllSection a[href]"
-            )
-            .forEach((a) => {
-              a.target = "_blank";
-              a.rel = "noopener noreferrer";
-            });
-        };
-        fixTargets();
-        new MutationObserver(fixTargets).observe(document.body, {
-          childList: true,
-          subtree: true,
-        });
-      });
-    </script>
+    <script src="/static/js/job_detail.js?v=final-no-raw"></script>
   </body>
 </html>
