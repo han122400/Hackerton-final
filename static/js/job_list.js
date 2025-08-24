@@ -1,3 +1,5 @@
+// static/js/job_list.js — FINAL (서버 합성된 workRegionNm 바로 사용)
+
 // ===== DOM =====
 const cityFilter = document.getElementById("cityFilter");
 const districtFilter = document.getElementById("districtFilter");
@@ -35,13 +37,12 @@ function initCityFilter() {
       )
       .join("");
 }
-function updateDistrictFilter(cityKey) {
-  // 간단 버전: 상세 행정구역 사용 안 함
+function updateDistrictFilter() {
   districtFilter.classList.add("d-none");
   districtFilter.innerHTML = `<option value="all">구/군 선택</option>`;
 }
 
-// API 호출
+// ===== API =====
 async function fetchJobs(params = {}) {
   const qs = new URLSearchParams(params).toString();
   const res = await fetch(`/api/jobs${qs ? `?${qs}` : ""}`);
@@ -49,7 +50,7 @@ async function fetchJobs(params = {}) {
   return j.ok ? j.items || [] : [];
 }
 
-// 유틸
+// ===== 유틸 =====
 function esc(s) {
   return String(s || "")
     .replaceAll("&", "&amp;")
@@ -58,52 +59,62 @@ function esc(s) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 }
+function onlyDigits(s) {
+  return String(s || "").replace(/\D/g, "");
+}
 function fmtDeadline(d) {
-  if (!d || d.length < 8) return "상시채용";
-  return `~${d.slice(4, 6)}.${d.slice(6, 8)}`;
+  const dd = onlyDigits(d);
+  if (!dd || dd.length < 8) return "상시채용";
+  return `~${dd.slice(4, 6)}.${dd.slice(6, 8)}`;
 }
 function isSoon(d) {
-  if (!d || d.length < 8) return false;
-  const dd = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8));
-  const diff = Math.ceil((dd - new Date()) / 86400000);
+  const dd = onlyDigits(d);
+  if (!dd || dd.length < 8) return false;
+  const end = new Date(+dd.slice(0, 4), +dd.slice(4, 6) - 1, +dd.slice(6, 8));
+  const diff = Math.ceil((end - new Date()) / 86400000);
   return diff >= 0 && diff <= 7;
 }
-
-// 배지 템플릿 (대비 강화)
+function deadlineSortKey(d) {
+  const dd = onlyDigits(d);
+  return dd && dd.length === 8 ? dd : "99999999";
+}
 const badge = (t) => `<span class="badge badge-contrast">${esc(t)}</span>`;
 const badgeDanger = (t) =>
   `<span class="badge badge-danger-soft">${esc(t)}</span>`;
 
-// 카드 템플릿
+// ===== 카드 =====
 function cardTpl(job) {
-  const logo = job.company_logo
-    ? `<img src="${job.company_logo}" alt="${esc(
+  const id = job.empSeqno || job.id || "";
+  const logo = job.regLogImgNm
+    ? `<img src="${job.regLogImgNm}" alt="${esc(
         job.company || ""
       )}" style="width:100%;height:100%;object-fit:contain">`
     : `<strong class="text-primary fs-4">${esc(
         (job.company || "C").slice(0, 1)
       )}</strong>`;
 
+  // ✅ 서버에서 합성된 workRegionNm 우선
   const regionText =
+    job.workRegionNm ||
     job.region ||
     [job.region1, job.region2].filter(Boolean).join(" ") ||
-    job.workRegionNm ||
     "";
+
   const deadlineText = fmtDeadline(job.endDate);
   const deadlineBadge = isSoon(job.endDate)
     ? badgeDanger(deadlineText)
     : badge(deadlineText);
 
-  const empType = job.employmentType || job.empType || job.hireType;
+  const empType =
+    job.empWantedTypeNm || job.employmentType || job.empType || job.hireType;
 
   return `
   <div class="col">
-    <article class="job-card p-3 h-100">
+    <article class="job-card p-3 h-100" data-id="${esc(id)}">
       <div class="d-flex gap-3">
         <div class="flex-shrink-0 rounded border bg-white d-flex align-items-center justify-content-center" style="width:88px;height:88px;overflow:hidden">
           ${logo}
         </div>
-
         <div class="flex-grow-1 min-w-0">
           <div class="d-flex justify-content-between align-items-start gap-2">
             <div class="min-w-0">
@@ -114,15 +125,14 @@ function cardTpl(job) {
             </div>
             <div class="ms-2">${deadlineBadge}</div>
           </div>
-
           <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
-            ${regionText ? badge(regionText) : ""}
+            ${regionText ? badge("근무지 · " + regionText) : ""}
             ${empType ? badge(empType) : ""}
           </div>
         </div>
       </div>
       <a class="stretched-link" href="/job-detail?id=${encodeURIComponent(
-        job.empSeqno || job.id || ""
+        id
       )}"></a>
     </article>
   </div>`;
@@ -135,7 +145,7 @@ function renderList(items) {
     : `<div class="col"><div class="text-center text-secondary py-5">표시할 공고가 없습니다</div></div>`;
 }
 
-// 필터/정렬/검색
+// ===== 필터/정렬/검색 =====
 async function filterJobs() {
   const params = {};
   const kw = (searchInput.value || "").trim();
@@ -144,18 +154,21 @@ async function filterJobs() {
   const cityKey = cityFilter.value;
   const full =
     cityKey !== "all" ? cityFilter.selectedOptions[0]?.dataset.full : null;
-  if (full) params.region1 = full;
+  if (full) params.region1 = full; // 백엔드에서 정규화 후 workRegionNm 포함 여부로 필터
 
-  // 서버로 요청
+  // 1) 목록
   const items = await fetchJobs(params);
 
-  // 정렬
+  // 2) 정렬
   const sortBy = sortFilter.value;
   items.sort((a, b) => {
     if (sortBy === "company")
       return (a.company || "").localeCompare(b.company || "");
     if (sortBy === "deadline")
-      return (a.endDate || "").localeCompare(b.endDate || "");
+      return deadlineSortKey(a.endDate).localeCompare(
+        deadlineSortKey(b.endDate)
+      );
+    // 최신순(기본)
     return String(b.startDate || b.empSeqno || "").localeCompare(
       String(a.startDate || a.empSeqno || "")
     );
@@ -165,7 +178,7 @@ async function filterJobs() {
   renderList(items);
 }
 
-// 상단 필터 표시(간단)
+// ===== 상단 필터 표시 =====
 function updateActiveFilters() {
   const wrap = document.getElementById("activeFilters");
   const chips = [];
@@ -184,7 +197,7 @@ function updateActiveFilters() {
     : `<span class="text-secondary">전체 지역</span>`;
 }
 
-// 이벤트
+// ===== 이벤트 =====
 function setupEvents() {
   cityFilter.addEventListener("change", (e) => {
     updateDistrictFilter(e.target.value);
@@ -203,7 +216,7 @@ function setupEvents() {
   });
 }
 
-// 시작
+// ===== 시작 =====
 document.addEventListener("DOMContentLoaded", async () => {
   initCityFilter();
   updateDistrictFilter("all");
