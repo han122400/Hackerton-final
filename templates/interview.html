@@ -5,25 +5,29 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>AI 모의면접 – 인터뷰</title>
 
-    <!-- Bootstrap only -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
     <style>
-      /* 카메라 프리뷰 카드 */
-      /* 공용 CSS(각 페이지 <style> 끝이나 공용 css에 추가) */
-      .logo-btn {
+      .rounded-16 {
+        border-radius: 16px;
+      }
+      .help {
+        font-size: 12px;
+        color: #6c757d;
+      }
+      .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      .back-btn {
         background: none;
         border: none;
         padding: 0;
-        cursor: pointer;
-      }
-      .icon-rounded {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: block;
       }
 
       .preview-wrap {
@@ -137,6 +141,19 @@
     </style>
   </head>
   <body class="bg-light">
+    <nav class="navbar bg-white border-bottom sticky-top">
+      <div class="container-fluid d-flex align-items-center gap-2">
+        <a href="/" aria-label="홈으로">
+          <img
+            src="/static/image/COD.png"
+            alt="홈 아이콘"
+            class="icon-rounded"
+          />
+        </a>
+        <span class="fw-semibold">면접</span>
+      </div>
+    </nav>
+
     <main class="container py-4 py-md-5">
       <!-- 상단 정보 -->
       <div
