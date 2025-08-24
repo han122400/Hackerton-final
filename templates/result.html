@@ -13,9 +13,9 @@
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        gap: 1rem;
+        gap: 2rem;
         height: 120px; /* 또는 220px */
-        margin-top: 1rem;
+        margin-top: 6rem;
       }
       .vertical-bar {
         width: 50px;
@@ -58,6 +58,13 @@
         font-weight: bold;
         margin-top: 1rem;
       }
+      .grayro {
+        background-color: gray;
+        color: white;
+        border-radius: 8px;
+        display: inline-block;
+        padding: 0.3em 1em;
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -78,7 +85,7 @@
         <!-- 좌측: 총점 + 세로 막대그래프 -->
         <div class="col-lg-4 d-flex justify-content-center">
           <div class="card shadow-sm rounded-16 p-3 card-wide text-center">
-            <h5 class="fw-semibold">총점</h5>
+            <h5><span class="grayro">총점</span></h5>
             <div class="score-container" id="scoreValue">-</div>
             <!-- 총점 그래프 (가로 선) -->
             <div class="w-100 my-3 d-flex flex-column align-items-center">
@@ -100,9 +107,9 @@
               </div>
             </div>
             <div class="d-flex justify-content-center mt-3" style="gap:0;">
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">방향</div>
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">시선</div>
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">미소</div>
+              <div class="bar-label" style="width:80px; text-align:center; font-size:1.1rem; margin:0; padding:0;">방향</div>
+              <div class="bar-label" style="width:80px; text-align:center; font-size:1.1rem; margin:0; padding:0;">시선</div>
+              <div class="bar-label" style="width:80px; text-align:center; font-size:1.1rem; margin:0; padding:0;">미소</div>
             </div>
           </div>
         </div>
@@ -111,7 +118,7 @@
         <div class="col-lg-8 d-flex flex-column gap-4">
           <!-- 상세 피드백 -->
           <div id="feedbackDiv" class="card shadow-sm rounded-16 p-3 card-wide">
-            <h5 class="fw-semibold">최종 피드백</h5>
+            <h5><span class="grayro">최종 피드백</span></h5>
             <div id="feedbackContent"></div>
           </div>
 
@@ -120,7 +127,7 @@
             id="detailFeedbackDiv"
             class="card shadow-sm rounded-16 p-3 card-wide"
           >
-            <h5 class="fw-semibold">자세 피드백</h5>
+            <h5><span class="grayro">자세 피드백</span></h5>
             <div id="detailFeedbackText"></div>
           </div>
 
