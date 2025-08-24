@@ -12,6 +12,20 @@
     />
     <style>
       /* 카메라 프리뷰 카드 */
+      /* 공용 CSS(각 페이지 <style> 끝이나 공용 css에 추가) */
+      .logo-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .icon-rounded {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: block;
+      }
+
       .preview-wrap {
         border-radius: 1rem;
         overflow: hidden;
@@ -74,7 +88,7 @@
         white-space: pre-line;
       }
       .stt-box:empty::before {
-        content: '말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.';
+        content: "말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.";
         color: #94a3b8;
       }
 
@@ -106,6 +120,19 @@
       }
       .qstatus .seg.current {
         background: #0d6efd;
+      }
+      /* 공용 CSS(각 페이지 <style> 끝이나 공용 css에 추가) */
+      .logo-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .icon-rounded {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: block;
       }
     </style>
   </head>

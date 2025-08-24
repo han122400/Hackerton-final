@@ -9,17 +9,32 @@
       .rounded-16 {
         border-radius: 16px;
       }
+      /* 공용 CSS(각 페이지 <style> 끝이나 공용 css에 추가) */
+      .logo-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .icon-rounded {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: block;
+      }
     </style>
   </head>
   <body class="bg-light">
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-xxl d-flex align-items-center gap-2">
-        <button
-          class="btn btn-outline-secondary btn-sm"
-          onclick="history.back()"
-        >
-          ←
+        <button onclick="history.back()" class="back-btn" aria-label="뒤로가기">
+          <img
+            src="/static/image/COD.png"
+            alt="뒤로가기 아이콘"
+            class="icon-rounded"
+          />
         </button>
+
         <span class="fw-semibold">개인정보 입력</span>
       </div>
     </nav>

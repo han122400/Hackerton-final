@@ -13,18 +13,51 @@
         font-size: 12px;
         color: #6c757d;
       }
+      .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px; /* 버튼 크기 */
+        height: 40px;
+        padding: 0;
+        border-radius: 50%; /* 완전 원형 */
+        overflow: hidden; /* 아이콘이 삐져나오지 않게 */
+      }
+
+      .back-btn {
+        background: none; /* 버튼 배경 제거 */
+        border: none; /* 버튼 테두리 제거 */
+        padding: 0; /* 여백 제거 */
+        cursor: pointer; /* 커서: 손모양 */
+      }
+
+      /* 공용 CSS(각 페이지 <style> 끝이나 공용 css에 추가) */
+      .logo-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .icon-rounded {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: block;
+      }
     </style>
   </head>
   <body class="bg-light">
     <nav class="navbar bg-white border-bottom sticky-top">
       <div class="container-xxl d-flex align-items-center gap-2">
-        <button
-          class="btn btn-outline-secondary btn-sm"
-          onclick="history.back()"
-        >
-          ←
+        <button onclick="history.back()" class="back-btn" aria-label="뒤로가기">
+          <img
+            src="/static/image/COD.png"
+            alt="뒤로가기 아이콘"
+            class="icon-rounded"
+          />
         </button>
-        <span class="fw-semibold">면접 정보 입력</span>
+
+        <span class="fw-semibold">.</span>
       </div>
     </nav>
 
