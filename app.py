@@ -17,6 +17,7 @@ from server.user_input import router as user_input_router  # 추가된 user-inpu
 from server.voice import router as analyze_router
 from server.result import router as result_router
 from server.result_save import router as result_save_router
+from server.result_load import router as result_load_router
 
 app = FastAPI()
 
@@ -93,6 +94,7 @@ app.include_router(user_input_router, prefix="/api")  # 추가
 app.include_router(analyze_router, prefix="/api")
 app.include_router(result_router, prefix="/api")
 app.include_router(result_save_router, prefix="/api")
+app.include_router(result_load_router, prefix="/api")
 
 # 헬스체크
 @app.get("/health")

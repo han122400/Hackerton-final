@@ -18,7 +18,22 @@
       }
       .navbar-blur {
         backdrop-filter: blur(6px);
-        background: rgba(255, 255, 255, 0.9) !important;
+        background: rgba(255, 255, 255, 1) !important;
+        border-bottom: 2px solid #e5e7eb;
+      }
+      .nav-result-btn {
+        background: #2563eb !important;
+        color: white !important;
+        border: 2px solid #2563eb !important;
+        padding: 8px 16px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+      }
+      .nav-result-btn:hover {
+        background: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        color: white !important;
       }
       .feature-card {
         background: var(--card-bg);
@@ -41,7 +56,6 @@
       .text-weak {
         color: var(--text-weak) !important;
       }
-      
       .btn-soft {
         --bs-btn-color: #fff;
         --bs-btn-bg: var(--primary-600);
@@ -69,23 +83,19 @@
           max-width: 1320px;
         }
       }
-.logo-btn{background:none;border:none;padding:0;cursor:pointer}
-.icon-rounded{width:40px;height:40px;border-radius:12px;display:block}
-
-
-      
-      
     </style>
   </head>
   <body>
-   <nav class="navbar bg-white border-bottom sticky-top">
-  <div class="container-fluid d-flex align-items-center gap-2">
-    <a href="/" aria-label="홈으로">
-      <img src="/static/image/COD.png" alt="홈 아이콘" class="icon-rounded" />
-    </a>
-  </div>
-</nav>
-
+    <nav
+      class="navbar navbar-expand border-bottom sticky-top navbar-blur py-2"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/">면접 연습</a>
+        <div class="navbar-nav ms-auto align-items-center" style="margin-right: 20px;">
+        <a class="nav-result-btn" href="/result-log">면접기록 조회</a>
+        </div>
+      </div>
+    </nav>
 
     <main class="py-5 py-md-5">
       <div class="container">
@@ -165,7 +175,7 @@
     </main>
 
     <footer class="py-4 text-center text-muted small">
-      © 2025 AI 면접 연습 | 팀 Code Art Online
+      © 2025 AI 면접 연습 | 팀 Hackerton
     </footer>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
