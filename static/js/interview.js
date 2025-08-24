@@ -1,4 +1,4 @@
-// interview.js – 완전 통합 버전 (분석 상태 표시 포함)
+// interview.js – UI 변경 반영: (1) sttAuto 자리에 녹음 버튼, (2) 5개 상태바, (3) recDot은 '녹음 중'에만 애니메이션
 
 let interviewData = null;
 let currentQuestionIndex = 0;
@@ -8,35 +8,44 @@ let interviewTimer = null;
 let interviewStartTime = null;
 
 // 녹음 상태
-let isRecording = false;
 let mediaRecorder = null;
+let isRecording = false;
 let recordedChunks = [];
-let currentStream = null;
 
-// ===== 질문 생성 =====
+/* ========= 질문 구성 ========= */
 function generateInterviewQuestions() {
   interviewQuestions = [];
 
-  const generalQuestions = INTERVIEW_QUESTIONS.general
+  // 기본 질문 샘플
+  const general = (INTERVIEW_QUESTIONS.general || [])
+    .slice()
     .sort(() => 0.5 - Math.random())
     .slice(0, 3);
 
+  // 공고 기반 기술 질문
   const jobData = localStorage.getItem("selectedJob");
   const category = jobData ? JSON.parse(jobData).category : "프론트엔드";
-  const technicalQuestions = (
-    INTERVIEW_QUESTIONS.technical[category] ||
-    INTERVIEW_QUESTIONS.technical["프론트엔드"]
-  )
+  const techBase =
+    (INTERVIEW_QUESTIONS.technical &&
+      INTERVIEW_QUESTIONS.technical[category]) ||
+    (INTERVIEW_QUESTIONS.technical &&
+      INTERVIEW_QUESTIONS.technical["프론트엔드"]) ||
+    [];
+  const technical = techBase
+    .slice()
     .sort(() => 0.5 - Math.random())
     .slice(0, 2);
 
-  interviewQuestions = [...generalQuestions, ...technicalQuestions];
+  interviewQuestions = [...general, ...technical];
 
   const totalEl = document.getElementById("totalQuestions");
   if (totalEl) totalEl.textContent = interviewQuestions.length;
+
+  // 상태바 초기 렌더
+  renderQuestionStatus();
 }
 
-// ===== 현재 질문 표시 =====
+/* ========= 현재 질문 표시 ========= */
 function showCurrentQuestion() {
   if (currentQuestionIndex >= interviewQuestions.length) {
     completeInterview();
@@ -45,32 +54,49 @@ function showCurrentQuestion() {
 
   const idxEl = document.getElementById("currentQuestion");
   const qTextEl = document.getElementById("questionText");
-  const answerEl = document.getElementById("answerText");
 
   if (idxEl) idxEl.textContent = currentQuestionIndex + 1;
   if (qTextEl) qTextEl.textContent = interviewQuestions[currentQuestionIndex];
-  if (answerEl) answerEl.value = "";
 
-  updateProgressBar();
+  updateQuestionStatus();
 }
 
-// ===== 진행률 바 =====
-function updateProgressBar() {
-  const fill = document.getElementById("progressFill");
-  if (!fill || interviewQuestions.length === 0) return;
-  const progress =
-    ((currentQuestionIndex + 1) / interviewQuestions.length) * 100;
-  fill.style.width = `${progress}%`;
+/* ========= 질문 상태바 렌더/업데이트 ========= */
+function renderQuestionStatus() {
+  const wrap = document.getElementById("qStatusBar");
+  if (!wrap) return;
+
+  // 세그먼트 개수는 5개로 고정 (요청사항)
+  // (질문 수가 다르더라도 5개로 보여주되, 진행 위치만 반영)
+  wrap.querySelectorAll(".seg").forEach((seg) => {
+    seg.classList.remove("done", "current");
+  });
+
+  updateQuestionStatus();
 }
 
-// ===== 다음 질문 =====
+function updateQuestionStatus() {
+  const wrap = document.getElementById("qStatusBar");
+  if (!wrap) return;
+
+  const total = 5; // 고정
+  const now = Math.min(currentQuestionIndex, total - 1);
+  const segs = wrap.querySelectorAll(".seg");
+
+  segs.forEach((seg, i) => {
+    seg.classList.remove("done", "current");
+    if (i < now) seg.classList.add("done");
+    if (i === now) seg.classList.add("current");
+  });
+}
+
+/* ========= 다음 질문 ========= */
 function nextQuestion() {
   if (isRecording) toggleRecording(); // 녹음 중이면 중지
 
-  const answer = (document.getElementById("answerText")?.value ?? "").trim();
   interviewAnswers.push({
     question: interviewQuestions[currentQuestionIndex],
-    answer: answer,
+    answer: document.getElementById("realtimeTranscript")?.textContent || "",
     timestamp: new Date(),
   });
 
@@ -78,169 +104,92 @@ function nextQuestion() {
   showCurrentQuestion();
 }
 
-// ===== 카메라/마이크 스트림 유지 (getMediaStream 원본 유지) =====
-async function getMediaStream() {
-  if (currentStream) return currentStream;
-
-  try {
-    if (navigator.permissions) {
-      try {
-        const cam = await navigator.permissions.query({ name: "camera" });
-        const mic = await navigator.permissions.query({ name: "microphone" });
-        if (cam.state === "denied" || mic.state === "denied") {
-          alert("브라우저 설정에서 카메라/마이크 차단을 해제해주세요.");
-          return null;
-        }
-      } catch (e) {
-        console.warn("권한 상태 확인 불가:", e);
-      }
-    }
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: true,
-    });
-    currentStream = stream;
-
-    const live = document.getElementById("livePreview");
-    if (live) {
-      live.classList.remove("d-none");
-      live.srcObject = stream;
-    }
-    return stream;
-  } catch (err) {
-    console.error("getUserMedia error:", err);
-    alert("카메라/마이크 권한이 필요합니다.");
-    return null;
+/* ========= 마이크 권한 요청 ========= */
+async function requestMicStream() {
+  const isSecure =
+    location.protocol === "https:" || location.hostname === "localhost";
+  if (!isSecure) {
+    console.warn(
+      "getUserMedia는 HTTPS/localhost에서만 권한 팝업이 정상 동작합니다."
+    );
   }
-}
-
-function stopStreamTracks() {
-  if (currentStream) {
-    currentStream.getTracks().forEach((t) => t.stop());
-    currentStream = null;
-  }
-  const live = document.getElementById("livePreview");
-  if (live) {
-    live.srcObject = null;
-    live.classList.add("d-none");
-  }
-}
-// ===== 권한 체크 + getUserMedia 통합 =====
-async function requestMicrophoneAccess() {
-  const sttBox = document.getElementById("realtimeTranscript");
-
-  // 먼저 권한 상태 확인
-  if (navigator.permissions) {
-    try {
-      const micPerm = await navigator.permissions.query({ name: "microphone" });
-      if (micPerm.state === "denied") {
-        alert("마이크 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.");
-        return null;
-      }
-    } catch (e) {
-      console.warn("권한 상태 확인 불가:", e);
-    }
-  }
-
-  // 실제 마이크 접근 시도
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     return stream;
   } catch (err) {
-    console.error("마이크 접근 실패:", err);
-    alert("마이크 권한이 필요합니다. 브라우저 설정에서 허용해주세요.");
-    if (sttBox) sttBox.textContent = "마이크 권한이 필요합니다.";
+    console.error("마이크 권한 거부 또는 오류:", err);
+    alert(
+      "마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 '허용'으로 변경하세요."
+    );
     return null;
   }
 }
 
-// 마이크 권한 요청
-async function requestMicrophoneAccess() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    return stream;
-  } catch (err) {
-    alert("마이크 권한이 필요합니다. 브라우저 설정에서 허용해주세요.");
-    console.error("마이크 권한 요청 실패:", err);
-    return null;
-  }
-}
-
-// ===== 녹음 토글 =====
+/* ========= 녹음 토글 (버튼 클릭) ========= */
 async function toggleRecording() {
-  const recordButton = document.getElementById("recordButton");
+  const btn = document.getElementById("recordButton");
   const recDot = document.getElementById("recDot");
-  const sttBox = document.getElementById("realtimeTranscript");
 
+  // ---- 정지 ----
   if (isRecording) {
-    mediaRecorder.stop();
+    try {
+      mediaRecorder && mediaRecorder.stop();
+    } catch {}
     isRecording = false;
-    if (recordButton) {
-      recordButton.textContent = "음성 답변";
-      recordButton.classList.remove("btn-success");
-      recordButton.classList.add("btn-danger");
+    if (btn) {
+      btn.classList.remove("btn-success");
+      btn.classList.add("btn-danger");
+      btn.textContent = "음성 답변";
     }
-    if (recDot) recDot.classList.remove("active");
-    if (sttBox && sttBox.dataset.tempText) {
-      sttBox.textContent = sttBox.dataset.tempText;
-      delete sttBox.dataset.tempText;
-    }
-  } else {
-    const stream = await requestMicrophoneAccess();
-    if (!stream) return;
-
-    recordedChunks = [];
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) recordedChunks.push(e.data);
-    };
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(recordedChunks, { type: "audio/webm" });
-      const formData = new FormData();
-      formData.append("audio", blob, "answer.webm");
-
-      // STT 박스에 "분석 중입니다" 표시
-      if (sttBox) {
-        sttBox.dataset.tempText = sttBox.textContent;
-        sttBox.textContent = "분석하는 중입니다...";
-      }
-
-      try {
-        const res = await fetch("/api/analyze", { method: "POST", body: formData });
-        const data = await res.json();
-        if (sttBox) sttBox.textContent = data.text || "분석 결과가 없습니다.";
-        console.log("서버 응답:", data);
-      } catch (err) {
-        console.error("서버 전송 실패:", err);
-        if (sttBox) sttBox.textContent = "분석 실패";
-      }
-
-      stream.getTracks().forEach((t) => t.stop());
-
-  
-    };
-
-    mediaRecorder.start();
-    isRecording = true;
-    if (recordButton) {
-      recordButton.textContent = "녹음 중지";
-      recordButton.classList.remove("btn-danger");
-      recordButton.classList.add("btn-success");
-    }
-    if (recDot) recDot.classList.add("active");
+    recDot && recDot.classList.remove("active");
+    return;
   }
+
+  // ---- 시작 ----
+  const micStream = await requestMicStream();
+  if (!micStream) return;
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(micStream, { mimeType: "audio/webm" });
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = async () => {
+    micStream.getTracks().forEach((t) => t.stop());
+    const blob = new Blob(recordedChunks, { type: "audio/webm" });
+    const fd = new FormData();
+    fd.append("audio", blob, "answer.webm");
+
+    const sttBox = document.getElementById("realtimeTranscript");
+    if (sttBox) sttBox.textContent = "분석 중…";
+
+    try {
+      const res = await fetch("/api/analyze", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (sttBox) sttBox.textContent = data.text || "분석 결과가 없습니다.";
+    } catch (e) {
+      console.error(e);
+      if (sttBox) sttBox.textContent = "분석 실패";
+    }
+  };
+
+  mediaRecorder.start();
+  isRecording = true;
+  if (btn) {
+    btn.classList.remove("btn-danger");
+    btn.classList.add("btn-success");
+    btn.textContent = "녹음 중지";
+  }
+  recDot && recDot.classList.add("active");
 }
 
-
-
-
-// ===== 타이머 =====
+/* ========= 타이머 ========= */
 function startInterviewTimer() {
   interviewStartTime = new Date();
   interviewTimer = setInterval(updateTimer, 1000);
 }
-
 function updateTimer() {
   const elapsed = Math.floor((new Date() - interviewStartTime) / 1000);
   const minutes = Math.floor(elapsed / 60);
@@ -252,17 +201,14 @@ function updateTimer() {
     ).padStart(2, "0")}`;
 }
 
-// ===== 면접 완료 =====
+/* ========= 면접 완료 / 결과 ========= */
 function completeInterview() {
   if (interviewTimer) clearInterval(interviewTimer);
   generateInterviewResult();
   window.location.href = "/result";
 }
-
-// ===== 결과 생성 =====
 function generateInterviewResult() {
   const totalTime = Math.floor((new Date() - interviewStartTime) / 1000);
-
   const scores = EVALUATION_CRITERIA.map((criteria) => {
     const baseScore = 70 + Math.random() * 20;
     return {
@@ -271,11 +217,9 @@ function generateInterviewResult() {
       weight: criteria.weight,
     };
   });
-
   const overallScore = Math.round(
-    scores.reduce((sum, item) => sum + item.score * item.weight, 0)
+    scores.reduce((s, it) => s + it.score * it.weight, 0)
   );
-
   const result = {
     overallScore,
     scores,
@@ -284,33 +228,31 @@ function generateInterviewResult() {
     feedback: generateFeedback(scores),
     recommendations: generateRecommendations(),
   };
-
   if (!interviewData) interviewData = {};
   interviewData.result = result;
   localStorage.setItem("interviewResult", JSON.stringify(result));
 }
-
-// ===== 피드백/추천 샘플 =====
 function generateFeedback() {
   const positives = FEEDBACK_TEMPLATES.positive
+    .slice()
     .sort(() => 0.5 - Math.random())
     .slice(0, 2);
   const improvements = FEEDBACK_TEMPLATES.improvement
+    .slice()
     .sort(() => 0.5 - Math.random())
     .slice(0, 2);
   return { positive: positives, improvement: improvements };
 }
-
 function generateRecommendations() {
   return FEEDBACK_TEMPLATES.suggestions
+    .slice()
     .sort(() => 0.5 - Math.random())
     .slice(0, 3);
 }
 
-// ===== 초기화 =====
+/* ========= 초기화 ========= */
 function initializeInterview() {
   if (!interviewData) return;
-
   document.getElementById("interviewCompany").textContent =
     interviewData.company || "회사명";
   document.getElementById("interviewPosition").textContent =
@@ -321,8 +263,9 @@ function initializeInterview() {
   startInterviewTimer();
 }
 
-// ===== 페이지 로드시 =====
+/* ========= 페이지 로드시 ========= */
 document.addEventListener("DOMContentLoaded", function () {
+  // 면접 데이터 로드
   const data = localStorage.getItem("interviewData");
   if (data) {
     interviewData = JSON.parse(data);
@@ -332,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = "/";
   }
 
-  // selectedJob 기반 질문 구성
+  // selectedJob 기반 텍스트 구성(초기 질문)
   (function () {
     function loadSelectedJob() {
       try {
@@ -350,7 +293,10 @@ document.addEventListener("DOMContentLoaded", function () {
         `공고에서 요구하는 역량 중 본인 강점 1~2개를 사례와 함께 설명해주세요.`,
         `요구 기술 중 가장 자신 있는 기술을 선택해 최근 경험을 말해보세요.`,
         `해당 포지션 핵심 업무에 대한 이해와 입사 후 3개월 계획은?`,
-        `공고 요약: ${base.slice(0, 120)}... 를 바탕으로 가장 적합한 프로젝트 경험을 설명하세요.`,
+        `공고 요약: ${base.slice(
+          0,
+          120
+        )}... 를 바탕으로 가장 적합한 프로젝트 경험을 설명하세요.`,
       ];
     }
 
@@ -368,9 +314,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const qEl = document.getElementById("questionText");
     const totalEl = document.getElementById("totalQuestions");
     if (qEl) qEl.innerText = qs[0];
-    if (totalEl) totalEl.innerText = qs.length;
+    if (totalEl) totalEl.innerText = 5; // 상태바는 5개 고정
   })();
 
-  // 녹음 버튼 연결
-  document.getElementById("recordButton")?.addEventListener("click", toggleRecording);
+  // 녹음 버튼 연결 (stt 영역 헤더에 위치)
+  document
+    .getElementById("recordButton")
+    ?.addEventListener("click", toggleRecording);
 });

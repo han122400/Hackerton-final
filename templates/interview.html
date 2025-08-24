@@ -24,7 +24,7 @@
         background: #0b1320;
       }
 
-      /* 상태 카드 안 배지들(왼쪽 정렬) */
+      /* 상태 배지 */
       .state-badge {
         min-width: 120px;
         background: #f6f8fb;
@@ -38,9 +38,8 @@
         font-weight: 600;
       }
 
-      /* 오른쪽 녹화 상태 동그라미 */
+      /* 녹화 상태 동그라미 */
       .rec-indicator {
-        position: relative;
         width: 44px;
         height: 44px;
         border-radius: 999px;
@@ -90,6 +89,24 @@
         font-weight: 600;
         color: #111827;
       }
+
+      /* 질문 상태바 (5개 세그먼트) */
+      .qstatus {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      .qstatus .seg {
+        height: 10px;
+        border-radius: 999px;
+        background: #e5e7eb;
+      }
+      .qstatus .seg.done {
+        background: #60a5fa;
+      }
+      .qstatus .seg.current {
+        background: #0d6efd;
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -110,6 +127,36 @@
         </div>
       </div>
 
+      <!-- 질문 상태 바 (5개) -->
+      <section class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="h6 mb-0">
+              질문 진행
+              <span class="text-secondary"
+                >( <span id="currentQuestion">1</span> /
+                <span id="totalQuestions">5</span> )</span
+              >
+            </div>
+            <button
+              id="nextQuestionBtn"
+              class="btn btn-primary btn-sm"
+              type="button"
+              onclick="nextQuestion()"
+            >
+              다음 질문
+            </button>
+          </div>
+          <div id="qStatusBar" class="qstatus">
+            <div class="seg" data-idx="0"></div>
+            <div class="seg" data-idx="1"></div>
+            <div class="seg" data-idx="2"></div>
+            <div class="seg" data-idx="3"></div>
+            <div class="seg" data-idx="4"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- 카메라 프리뷰 & 질문/상태 -->
       <div class="row g-4">
         <!-- 좌: 카메라 프리뷰 -->
@@ -125,39 +172,21 @@
           </section>
           <canvas id="canvas" class="d-none"></canvas>
           <div id="log" class="d-none" aria-hidden="true"></div>
-        </div>
 
-        <!-- 우: 질문/상태/음성 텍스트 -->
-        <div class="col-12 col-lg-5">
-          <!-- (1) 현재 질문 -->
-          <section class="card shadow-sm mb-3">
+          <!-- 현재 질문(프리뷰 아래로 이동) -->
+          <section class="card shadow-sm mt-3">
             <div class="card-body">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <h2 class="h6 mb-0">
-                  현재 질문
-                  <span class="text-secondary"
-                    >( <span id="currentQuestion">1</span> /
-                    <span id="totalQuestions">5</span> )</span
-                  >
-                </h2>
-                <button
-                  id="nextQuestionBtn"
-                  class="btn btn-primary btn-sm"
-                  type="button"
-                  onclick="nextQuestion()"
-                >
-                  다음 질문
-                </button>
-              </div>
+              <div class="h6 mb-2">현재 질문</div>
               <div id="questionText" class="question-box">
                 질문을 불러오는 중…
               </div>
             </div>
           </section>
+        </div>
 
-          <!-- (2) 현재 상태 -->
+        <!-- 우: 상태/음성 텍스트 -->
+        <div class="col-12 col-lg-5">
+          <!-- (1) 현재 상태 -->
           <section class="card shadow-sm mb-3">
             <div class="card-body">
               <div
@@ -206,26 +235,28 @@
             </div>
           </section>
 
-          <!-- (3) STT -->
+          <!-- (2) STT + 음성답변 버튼(여기로 이동) -->
           <section class="card shadow-sm">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-2">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
                 <h2 class="h6 mb-0">실시간 음성 인식(STT)</h2>
-                <span id="sttAuto" class="small text-secondary">자동 갱신</span>
+                <!-- 기존 sttAuto 자리에 버튼 배치 -->
+                <button
+                  id="recordButton"
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                >
+                  음성 답변
+                </button>
               </div>
-              <div id="realtimeTranscript" class="stt-box" aria-live="polite"></div>
+              <div
+                id="realtimeTranscript"
+                class="stt-box"
+                aria-live="polite"
+              ></div>
             </div>
-          </section>
-
-          <!-- (4) 음성 녹음 버튼 -->
-          <section class="card shadow-sm mt-3">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <h2 class="h6 mb-0">음성 녹음</h2>
-              <button id="recordButton" class="btn btn-danger btn-sm" type="button">
-                음성 답변
-              </button>
-            </div>
-            <div id="playbackList" class="mt-2"></div>
           </section>
         </div>
       </div>
@@ -240,22 +271,5 @@
     <script src="/static/js/camera_ai.js"></script>
     <script src="/static/js/interview_ai.js"></script>
     <script src="/static/js/interview.js"></script>
-
-    <script>
-      (function () {
-        const dot = document.getElementById("recDot");
-        const video = document.getElementById("video");
-        setInterval(() => {
-          if (video && video.srcObject) {
-            dot.classList.add("active");
-          } else {
-            dot.classList.remove("active");
-          }
-        }, 500);
-        video?.addEventListener("loadedmetadata", () =>
-          dot.classList.add("active")
-        );
-      })();
-    </script>
   </body>
 </html>
