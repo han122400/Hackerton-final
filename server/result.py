@@ -9,7 +9,7 @@ def get_result():
         "ok": True,
         "overallScore": 83,
         "detailFeedback": {  # 그래프용 점수
-            "direction": 80,
+            "direction": 20,
             "eye": 70,
             "smile": 90
         },
