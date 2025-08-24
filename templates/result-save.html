@@ -38,7 +38,7 @@
         cursor: pointer;
       }
       button:hover {
-        background-color: #rgba(0, 128, 255, 1);
+        background-color: rgba(0, 128, 255, 1);
       }
       .toast {
         visibility: hidden;
@@ -83,44 +83,44 @@
     <script>
       // 토스트 메시지 표시 함수
       function showToast(message, callback) {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.className = "toast show";
+        const toast = document.getElementById('toast')
+        toast.textContent = message
+        toast.className = 'toast show'
         setTimeout(() => {
-          toast.className = "toast";
-          if (callback) callback();
-        }, 1500);
+          toast.className = 'toast'
+          if (callback) callback()
+        }, 1500)
       }
 
       document
-        .getElementById("userForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+        .getElementById('userForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault()
 
-          const name = document.getElementById("name").value.trim();
-          const email = document.getElementById("email").value.trim();
+          const name = document.getElementById('name').value.trim()
+          const email = document.getElementById('email').value.trim()
 
           if (!name || !email) {
-            showToast("이름과 이메일을 모두 입력하세요.");
-            return;
+            showToast('이름과 이메일을 모두 입력하세요.')
+            return
           }
 
           // 이메일 로컬 저장
-          localStorage.setItem("userEmail", email);
+          localStorage.setItem('userEmail', email)
 
           // 저장 메시지 후 index.html 이동
-          showToast("저장되었습니다!", () => {
-            window.location.href = "/";
-          });
-        });
+          showToast('저장되었습니다!', () => {
+            window.location.href = '/'
+          })
+        })
 
       // 페이지 로드 시 저장된 값 불러오기
-      window.addEventListener("DOMContentLoaded", () => {
-        const savedEmail = localStorage.getItem("userEmail");
-        const savedName = localStorage.getItem("userName");
-        if (savedEmail) document.getElementById("email").value = savedEmail;
-        if (savedName) document.getElementById("name").value = savedName;
-      });
+      window.addEventListener('DOMContentLoaded', () => {
+        const savedEmail = localStorage.getItem('userEmail')
+        const savedName = localStorage.getItem('userName')
+        if (savedEmail) document.getElementById('email').value = savedEmail
+        if (savedName) document.getElementById('name').value = savedName
+      })
     </script>
   </body>
 </html>
