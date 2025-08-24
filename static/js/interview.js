@@ -371,10 +371,24 @@ ${fullConversation}
       }
 
       // OpenRouter 응답을 그대로 피드백으로 사용
+      // 영상 분석 점수 가져오기
+      let cameraScores = { direction: 80, gaze: 75, smile: 90, overall: 82 } // 기본값
+      if (typeof window.getCameraAnalysisScores === 'function') {
+        cameraScores = window.getCameraAnalysisScores()
+        console.log('카메라 분석 점수:', cameraScores)
+      }
+
       const finalResult = {
         interviewData: interviewData,
         answers: interviewAnswers,
         feedback: feedbackData, // 파싱된 데이터 또는 원본 텍스트
+        overallScore: cameraScores.overall,
+        detailFeedback: {
+          direction: cameraScores.direction,
+          eye: cameraScores.gaze,
+          smile: cameraScores.smile,
+        },
+        postureFeedback: generatePostureFeedback(cameraScores),
         duration: Math.floor((new Date() - interviewStartTime) / 1000),
         timestamp: new Date(),
       }
@@ -393,6 +407,12 @@ ${fullConversation}
     console.error('피드백 생성 오류:', error)
 
     // 오류 시 기본 피드백으로 처리
+    // 영상 분석 점수 가져오기 (오류 상황에서도)
+    let cameraScores = { direction: 70, gaze: 65, smile: 75, overall: 70 } // 기본값
+    if (typeof window.getCameraAnalysisScores === 'function') {
+      cameraScores = window.getCameraAnalysisScores()
+    }
+
     const basicResult = {
       interviewData: interviewData,
       answers: interviewAnswers,
@@ -403,8 +423,14 @@ ${fullConversation}
         strengths: '면접에 참여해주셔서 감사합니다.',
         improvements: '보다 많은 경험과 학습이 필요합니다.',
         suggestions: '지속적인 성장을 위해 노력해주세요.',
-        overallScore: 70,
       },
+      overallScore: cameraScores.overall,
+      detailFeedback: {
+        direction: cameraScores.direction,
+        eye: cameraScores.gaze,
+        smile: cameraScores.smile,
+      },
+      postureFeedback: generatePostureFeedback(cameraScores),
       duration: Math.floor((new Date() - interviewStartTime) / 1000),
       timestamp: new Date(),
     }
@@ -554,3 +580,55 @@ document.addEventListener('DOMContentLoaded', function () {
     .getElementById('recordButton')
     ?.addEventListener('click', toggleRecording)
 })
+
+/* ========= 자세 피드백 생성 함수 ========= */
+function generatePostureFeedback(scores) {
+  const feedback = {}
+
+  // 방향 피드백
+  if (scores.direction >= 90) {
+    feedback.direction =
+      '카메라를 정면으로 바라보는 자세가 매우 안정적이었습니다.'
+  } else if (scores.direction >= 70) {
+    feedback.direction =
+      '대체로 좋은 자세를 유지했습니다. 조금 더 정면을 향해 앉으시면 더욱 좋겠습니다.'
+  } else if (scores.direction >= 50) {
+    feedback.direction =
+      '면접 중 자세가 약간 기울어지는 경향이 있었습니다. 정면을 바라보도록 의식해보세요.'
+  } else {
+    feedback.direction =
+      '카메라를 정면으로 바라보는 연습이 필요합니다. 면접 전 자세를 미리 확인해보세요.'
+  }
+
+  // 시선 피드백 (eye = gaze)
+  if (scores.gaze >= 90) {
+    feedback.eye =
+      '시선 처리가 완벽했습니다. 카메라를 안정적으로 응시하여 신뢰감을 주었습니다.'
+  } else if (scores.gaze >= 70) {
+    feedback.eye =
+      '시선 처리가 양호했습니다. 가끔 시선이 흔들렸지만 전반적으로 좋았습니다.'
+  } else if (scores.gaze >= 50) {
+    feedback.eye =
+      '시선이 자주 흔들리는 경향이 있었습니다. 카메라 렌즈를 집중해서 바라보는 연습을 해보세요.'
+  } else {
+    feedback.eye =
+      '시선 처리에 많은 개선이 필요합니다. 면접관의 눈을 보듯 카메라를 직시하는 연습을 하세요.'
+  }
+
+  // 미소 피드백
+  if (scores.smile >= 80) {
+    feedback.smile =
+      '자연스럽고 적절한 표정을 잘 유지했습니다. 긍정적인 인상을 주었습니다.'
+  } else if (scores.smile >= 60) {
+    feedback.smile =
+      '표정이 대체로 자연스러웠습니다. 조금 더 밝은 표정을 지으면 더욱 좋겠습니다.'
+  } else if (scores.smile >= 40) {
+    feedback.smile =
+      '표정이 다소 경직된 편이었습니다. 면접 전 거울을 보며 자연스러운 미소를 연습해보세요.'
+  } else {
+    feedback.smile =
+      '표정 관리에 신경을 써주세요. 자연스러운 미소와 밝은 표정으로 좋은 인상을 만들어보세요.'
+  }
+
+  return feedback
+}

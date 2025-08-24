@@ -40,8 +40,10 @@
         font-size: 0.8rem;
         transition: height 0.5s;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
+        min-height: 0;
+        overflow: hidden;
       }
       .bar-label {
         text-align: center;
@@ -82,27 +84,95 @@
             <div class="score-container" id="scoreValue">-</div>
             <!-- 총점 그래프 (가로 선) -->
             <div class="w-100 my-3 d-flex flex-column align-items-center">
-              <div class="progress" style="height: 16px; width: 80%; background:#eee; border-radius:8px;">
-                <div id="scoreBar" class="progress-bar bg-primary" role="progressbar" style="width:0%; border-radius:8px; font-weight:bold; font-size:1rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              <div
+                class="progress"
+                style="
+                  height: 16px;
+                  width: 80%;
+                  background: #eee;
+                  border-radius: 8px;
+                "
+              >
+                <div
+                  id="scoreBar"
+                  class="progress-bar bg-primary"
+                  role="progressbar"
+                  style="
+                    width: 0%;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    font-size: 1rem;
+                  "
+                  aria-valuenow="0"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
               </div>
             </div>
 
             <h6 class="fw-semibold mt-4"></h6>
-            <div class="vertical-bar-container" style="height: 120px;">
-              <div class="vertical-bar" style="height: 100%;">
-                <div id="directionFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+            <div class="vertical-bar-container" style="height: 120px">
+              <div class="vertical-bar" style="height: 100%">
+                <div
+                  id="directionFill"
+                  class="vertical-bar-fill"
+                  style="height: 0%"
+                >
+                  0
+                </div>
               </div>
-              <div class="vertical-bar" style="height: 100%;">
-                <div id="eyeFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+              <div class="vertical-bar" style="height: 100%">
+                <div id="eyeFill" class="vertical-bar-fill" style="height: 0%">
+                  0
+                </div>
               </div>
-              <div class="vertical-bar" style="height: 100%;">
-                <div id="smileFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+              <div class="vertical-bar" style="height: 100%">
+                <div
+                  id="smileFill"
+                  class="vertical-bar-fill"
+                  style="height: 0%"
+                >
+                  0
+                </div>
               </div>
             </div>
-            <div class="d-flex justify-content-center mt-3" style="gap:0;">
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">방향</div>
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">시선</div>
-              <div class="bar-label" style="width:65px; text-align:center; font-size:1.1rem; margin:0; padding:0;">미소</div>
+            <div class="d-flex justify-content-center mt-3" style="gap: 0">
+              <div
+                class="bar-label"
+                style="
+                  width: 65px;
+                  text-align: center;
+                  font-size: 1.1rem;
+                  margin: 0;
+                  padding: 0;
+                "
+              >
+                방향
+              </div>
+              <div
+                class="bar-label"
+                style="
+                  width: 65px;
+                  text-align: center;
+                  font-size: 1.1rem;
+                  margin: 0;
+                  padding: 0;
+                "
+              >
+                시선
+              </div>
+              <div
+                class="bar-label"
+                style="
+                  width: 65px;
+                  text-align: center;
+                  font-size: 1.1rem;
+                  margin: 0;
+                  padding: 0;
+                "
+              >
+                미소
+              </div>
             </div>
           </div>
         </div>

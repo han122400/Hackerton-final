@@ -44,11 +44,11 @@ function setTextByIds(ids, value) {
 }
 
 function setScoreBar(score) {
-  const bar = document.getElementById('scoreBar');
-  if(bar){
-    const val = Math.max(0, Math.min(score ?? 0, 100));
-    bar.style.width = val + '%';
-    bar.setAttribute('aria-valuenow', val);
+  const bar = document.getElementById('scoreBar')
+  if (bar) {
+    const val = Math.max(0, Math.min(score ?? 0, 100))
+    bar.style.width = val + '%'
+    bar.setAttribute('aria-valuenow', val)
   }
 }
 
@@ -57,8 +57,20 @@ function setVerticalBar(idFill, score) {
   if (fillEl) {
     const max = 100
     const pct = Math.max(0, Math.min(score ?? 0, max))
+
     fillEl.style.height = pct + '%'
-    fillEl.textContent = pct
+
+    // 매우 낮은 점수일 때는 텍스트 크기를 줄이거나 숨김
+    if (pct <= 5) {
+      fillEl.textContent = ''
+      fillEl.style.fontSize = '0'
+    } else if (pct <= 15) {
+      fillEl.textContent = pct
+      fillEl.style.fontSize = '0.6rem'
+    } else {
+      fillEl.textContent = pct
+      fillEl.style.fontSize = '0.8rem'
+    }
   }
 }
 
@@ -167,15 +179,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       console.log('최종 feedbackData:', feedbackData)
 
+      // 실제 저장된 점수 사용, 없으면 기본값
+      const savedOverallScore = parsedResult.overallScore || 85
+      const savedDetailFeedback = parsedResult.detailFeedback || {
+        direction: 80,
+        eye: 75,
+        smile: 90,
+      }
+      const savedPostureFeedback = parsedResult.postureFeedback || {
+        direction: '자세가 안정적이었습니다',
+        eye: '시선 처리가 좋았습니다',
+        smile: '적절한 표정을 유지했습니다',
+      }
+
       interviewResult = {
-        overallScore: 85, // 기본값
-        detailFeedback: { direction: 80, eye: 75, smile: 90 }, // 기본값
+        overallScore: savedOverallScore,
+        detailFeedback: savedDetailFeedback,
         feedback: feedbackData,
-        postureFeedback: {
-          direction: '자세가 안정적이었습니다',
-          eye: '시선 처리가 좋았습니다',
-          smile: '적절한 표정을 유지했습니다',
-        },
+        postureFeedback: savedPostureFeedback,
       }
     } else {
       // localStorage에 데이터가 없으면 API 호출

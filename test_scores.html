@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>점수 시스템 테스트</title>
+  </head>
+  <body>
+    <h1>점수 시스템 테스트</h1>
+    <button onclick="testScores()">테스트 점수 생성</button>
+    <button onclick="viewResult()">결과 페이지로 이동</button>
+
+    <div id="output"></div>
+
+    <script>
+      function testScores() {
+        // 테스트용 점수 데이터 생성
+        const testResult = {
+          interviewData: {
+            name: '테스트 사용자',
+            company: '테스트 회사',
+            position: '테스트 직무',
+          },
+          answers: [],
+          feedback: {
+            strengths: ['명확한 의사소통 능력을 보여주셨습니다.'],
+            improvements: ['답변의 구조를 더 체계적으로 정리하면 좋겠습니다.'],
+            suggestions: ['STAR 기법을 활용해 경험을 구조화해보세요.'],
+          },
+          overallScore: 87,
+          detailFeedback: {
+            direction: 92,
+            eye: 85,
+            smile: 78,
+          },
+          postureFeedback: {
+            direction:
+              '카메라를 정면으로 바라보는 자세가 매우 안정적이었습니다.',
+            eye: '시선 처리가 양호했습니다. 가끔 시선이 흔들렸지만 전반적으로 좋았습니다.',
+            smile:
+              '표정이 대체로 자연스러웠습니다. 조금 더 밝은 표정을 지으면 더욱 좋겠습니다.',
+          },
+          duration: 600,
+          timestamp: new Date(),
+        }
+
+        localStorage.setItem('interviewResult', JSON.stringify(testResult))
+
+        document.getElementById('output').innerHTML = `
+                <h3>테스트 데이터 생성 완료!</h3>
+                <p>총점: ${testResult.overallScore}</p>
+                <p>방향: ${testResult.detailFeedback.direction}</p>
+                <p>시선: ${testResult.detailFeedback.eye}</p>
+                <p>미소: ${testResult.detailFeedback.smile}</p>
+            `
+      }
+
+      function viewResult() {
+        window.location.href = '/result'
+      }
+    </script>
+  </body>
+</html>

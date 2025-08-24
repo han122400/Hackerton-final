@@ -20,6 +20,14 @@ for (const [name, el] of Object.entries({
   if (!el) console.error('❌ missing element:', name)
 }
 
+// 점수 추적을 위한 변수들
+let analysisData = {
+  direction: [],
+  gaze: [],
+  smile: [],
+  totalFrames: 0,
+}
+
 const ctx = canvas.getContext('2d')
 canvas.width = 480
 canvas.height = 360
@@ -56,6 +64,24 @@ socket.onmessage = (event) => {
     } else {
       smileEl.textContent = '-'
     }
+
+    // 데이터 수집 (점수 계산을 위해)
+    analysisData.totalFrames++
+
+    // 방향 점수 (정면: 100, 측면: 50)
+    let directionScore = 50
+    if (r.direction === '정면') directionScore = 100
+    analysisData.direction.push(directionScore)
+
+    // 시선 점수 (센터: 100, 기타: 60)
+    let gazeScore = 60
+    if (r.gaze === '센터') gazeScore = 100
+    analysisData.gaze.push(gazeScore)
+
+    // 미소 점수 (0~1을 0~100으로 변환)
+    const currentSmileScore =
+      typeof r.smile === 'number' ? Math.round(r.smile * 100) : 0
+    analysisData.smile.push(currentSmileScore)
 
     // ─────────────────────────────────────────────────────
     // [여기가 기존 전체 점수 계산 로직] — 100점 만점의 간단 가중치 예시
@@ -121,3 +147,56 @@ function appendLog(msg) {
   log.appendChild(div)
   log.scrollTop = log.scrollHeight
 }
+
+// 최종 점수 계산 함수
+function calculateFinalScores() {
+  if (analysisData.totalFrames === 0) {
+    return {
+      direction: 0,
+      gaze: 0,
+      smile: 0,
+      overall: 0,
+    }
+  }
+
+  // 각 항목별 평균 점수 계산
+  const directionAvg =
+    analysisData.direction.length > 0
+      ? analysisData.direction.reduce((a, b) => a + b, 0) /
+        analysisData.direction.length
+      : 0
+
+  const gazeAvg =
+    analysisData.gaze.length > 0
+      ? analysisData.gaze.reduce((a, b) => a + b, 0) / analysisData.gaze.length
+      : 0
+
+  const smileAvg =
+    analysisData.smile.length > 0
+      ? analysisData.smile.reduce((a, b) => a + b, 0) /
+        analysisData.smile.length
+      : 0
+
+  // 전체 점수 계산 (방향 30%, 시선 40%, 미소 30%)
+  const overall = Math.round(
+    directionAvg * 0.3 + gazeAvg * 0.4 + smileAvg * 0.3
+  )
+
+  console.log('영상분석 최종 점수:', {
+    direction: Math.round(directionAvg),
+    gaze: Math.round(gazeAvg),
+    smile: Math.round(smileAvg),
+    overall: overall,
+    totalFrames: analysisData.totalFrames,
+  })
+
+  return {
+    direction: Math.round(directionAvg),
+    gaze: Math.round(gazeAvg),
+    smile: Math.round(smileAvg),
+    overall: overall,
+  }
+}
+
+// 글로벌 함수로 내보내기 (interview.js에서 사용)
+window.getCameraAnalysisScores = calculateFinalScores
