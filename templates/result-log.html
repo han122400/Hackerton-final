@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>면접 결과 기록</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <style>
+      .filter-card {
+        border-radius: 16px;
+      }
+      .result-card {
+        position: relative;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(14, 20, 51, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(14, 20, 51, 0.12);
+      }
+      /* 말줄임 유틸 */
+      .min-w-0 {
+        min-width: 0;
+      }
+      .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        overflow: hidden;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+      }
+      /* 배지 스타일 */
+      .badge-success-soft {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+      .badge-warning-soft {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+      }
+      .badge-danger-soft {
+        background: #ffe4e6;
+        color: #9f1239;
+        border: 1px solid #fecdd3;
+      }
+      .badge-info-soft {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+      }
+      /* 점수 표시 */
+      .score-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .score-excellent {
+        background: #dcfce7;
+        color: #166534;
+        border: 2px solid #bbf7d0;
+      }
+      .score-good {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 2px solid #bfdbfe;
+      }
+      .score-average {
+        background: #fef3c7;
+        color: #92400e;
+        border: 2px solid #fde68a;
+      }
+      .score-poor {
+        background: #ffe4e6;
+        color: #9f1239;
+        border: 2px solid #fecdd3;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+      <div class="container-xxl">
+        <a class="navbar-brand fw-bold" href="/">면접 연습</a>
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          onclick="history.back()"
+        >
+          ←
+        </button>
+      </div>
+    </nav>
+
+    <main class="container-xxl py-4">
+      <!-- 페이지 제목 -->
+      <div class="mb-4">
+        <h1 class="display-6 fw-bold mb-2">면접 결과 기록</h1>
+        <p class="text-muted">지금까지의 모든 면접 연습 결과를 확인해보세요</p>
+      </div>
+
+      <!-- 검색 섹션 -->
+      <section class="card shadow-sm filter-card mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text">이름</span>
+                <input
+                  id="nameInput"
+                  type="text"
+                  class="form-control"
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text">이메일</span>
+                <input
+                  id="emailInput"
+                  type="email"
+                  class="form-control"
+                  placeholder="이메일을 입력하세요"
+                />
+              </div>
+            </div>
+            <div class="col-12">
+              <button id="searchButton" class="btn btn-primary px-4">
+                <i class="bi bi-search"></i> 기록 검색
+              </button>
+              <button
+                id="resetButton"
+                class="btn btn-outline-secondary px-4 ms-2"
+              >
+                <i class="bi bi-arrow-clockwise"></i> 초기화
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <small class="text-secondary"
+              >총 <b id="resultCount">0</b>개의 결과가 있습니다</small
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- 결과 목록 -->
+      <div
+        id="resultList"
+        class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4"
+      >
+        <!-- 결과 카드들이 여기에 동적으로 추가됩니다 -->
+      </div>
+
+      <!-- 결과가 없을 때 표시 -->
+      <div id="noResults" class="text-center py-5 d-none">
+        <div class="mb-3">
+          <i class="bi bi-search" style="font-size: 3rem; color: #6c757d"></i>
+        </div>
+        <h4 class="text-muted">검색 결과가 없습니다</h4>
+        <p class="text-muted">다른 검색어나 필터를 시도해보세요</p>
+      </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/static/js/api.js" defer></script>
+    <script src="/static/js/result_log.js" defer></script>
+  </body>
+</html>
