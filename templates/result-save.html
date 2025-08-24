@@ -103,13 +103,12 @@
         return;
       }
 
-      // 이메일/이름 로컬 저장
+      // 이메일 로컬 저장
       localStorage.setItem("userEmail", email);
-      localStorage.setItem("userName", name);
 
       // 저장 메시지 후 index.html 이동
       showToast("저장되었습니다!", () => {
-        window.location.href = "index.html";
+        window.location.href = "/";
       });
     });
 

@@ -79,6 +79,10 @@ async def job_detail_page(request: Request):
 async def result_log_page(request: Request):
     return templates.TemplateResponse("result-log.html", {"request": request})
 
+@app.get("/result-save", response_class=HTMLResponse)
+async def result_save(request: Request):
+    return templates.TemplateResponse("result-save.html", {"request": request})
+
 # API 라우터 등록
 app.include_router(interview_router, prefix="/api")
 app.include_router(camera_router, prefix="/api")
