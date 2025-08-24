@@ -477,7 +477,7 @@ async function toggleRecording() {
     if (btn) {
       btn.classList.remove('btn-success')
       btn.classList.add('btn-danger')
-      btn.textContent = '음성 답변'
+      btn.textContent = '음성으로 답변하기'
     }
     recDot && recDot.classList.remove('active')
     return
@@ -518,7 +518,7 @@ async function toggleRecording() {
   if (btn) {
     btn.classList.remove('btn-danger')
     btn.classList.add('btn-success')
-    btn.textContent = '녹음 중지'
+    btn.textContent = '녹음중(중지하려면 누르세요)'
   }
   recDot && recDot.classList.add('active')
 }

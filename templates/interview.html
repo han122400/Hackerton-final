@@ -92,7 +92,7 @@
         white-space: pre-line;
       }
       .stt-box:empty::before {
-        content: "말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.";
+        content: '말하기를 시작하면 여기에 변환된 텍스트가 표시됩니다.';
         color: #94a3b8;
       }
 
@@ -216,16 +216,6 @@
           </section>
           <canvas id="canvas" class="d-none"></canvas>
           <div id="log" class="d-none" aria-hidden="true"></div>
-
-          <!-- 현재 질문(프리뷰 아래로 이동) -->
-          <section class="card shadow-sm mt-3">
-            <div class="card-body">
-              <div class="h6 mb-2">현재 질문</div>
-              <div id="questionText" class="question-box">
-                질문을 불러오는 중…
-              </div>
-            </div>
-          </section>
         </div>
 
         <!-- 우: 상태/음성 텍스트 -->
@@ -279,6 +269,16 @@
             </div>
           </section>
 
+          <!-- (1-1) 현재 질문 -->
+          <section class="card shadow-sm mb-3">
+            <div class="card-body">
+              <div class="h6 mb-2">현재 질문</div>
+              <div id="questionText" class="question-box">
+                질문을 불러오는 중…
+              </div>
+            </div>
+          </section>
+
           <!-- (2) STT + 음성답변 버튼(여기로 이동) -->
           <section class="card shadow-sm">
             <div class="card-body">
@@ -292,7 +292,7 @@
                   class="btn btn-danger btn-sm"
                   type="button"
                 >
-                  음성 답변
+                  음성으로 답변하기
                 </button>
               </div>
               <div
