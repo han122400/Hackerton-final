@@ -9,6 +9,56 @@
       .rounded-16 {
         border-radius: 16px;
       }
+      .vertical-bar-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 1rem;
+        height: 120px; /* 또는 220px */
+        margin-top: 1rem;
+      }
+      .vertical-bar {
+        width: 50px;
+        background: #eee;
+        border-radius: 8px;
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .vertical-bar-fill {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background: #6366f1;
+        border-radius: 0 0 8px 8px;
+        text-align: center;
+        color: white;
+        font-size: 0.8rem;
+        transition: height 0.5s;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .bar-label {
+        text-align: center;
+        margin-top: 0.5rem;
+        flex: 1;
+      }
+      .feedback-section {
+        margin-bottom: 1rem;
+      }
+      .card-wide {
+        width: 100%;
+      }
+      .score-container {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-top: 1rem;
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -26,44 +76,51 @@
 
     <main class="container-xxl py-4">
       <div class="row g-4">
-        <div class="col-lg-4">
-          <div class="card shadow-sm h-100 rounded-16">
-            <div class="card-body">
-              <h3 class="h6 fw-semibold mb-3">요약</h3>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between">
-                  <span>총점</span><strong id="scoreValue">-</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                  <span>답변 속도</span><strong id="speedValue">-</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                  <span>명확성</span><strong id="clarityValue">-</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                  <span>논리성</span><strong id="logicValue">-</strong>
-                </li>
-              </ul>
+        <!-- 좌측: 총점 + 세로 막대그래프 -->
+        <div class="col-lg-4 d-flex justify-content-center">
+          <div class="card shadow-sm rounded-16 p-3 card-wide text-center">
+            <h5 class="fw-semibold">총점</h5>
+            <div class="score-container" id="scoreValue">-</div>
+
+            <h6 class="fw-semibold mt-4">자세 피드백 (그래프)</h6>
+            <div class="vertical-bar-container" style="height: 120px;">
+              <div class="vertical-bar" style="height: 100%;">
+                <div id="directionFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+              </div>
+              <div class="vertical-bar" style="height: 100%;">
+                <div id="eyeFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+              </div>
+              <div class="vertical-bar" style="height: 100%;">
+                <div id="smileFill" class="vertical-bar-fill" style="height: 0%;">0</div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center gap-4 mt-3">
+              <div class="bar-label" style="width:50px; text-align:center; font-size:1.1rem;">방향</div>
+              <div class="bar-label" style="width:50px; text-align:center; font-size:1.1rem;">시선</div>
+              <div class="bar-label" style="width:50px; text-align:center; font-size:1.1rem;">미소</div>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-8">
-          <div class="card shadow-sm rounded-16 mb-4">
-            <div class="card-body">
-              <h3 class="h6 fw-semibold mb-3">세부 평가</h3>
-              <div id="evaluationItems" class="vstack gap-3 small"></div>
-            </div>
+        <!-- 우측: 상세 피드백 + 자세 피드백 텍스트 -->
+        <div class="col-lg-8 d-flex flex-column gap-4">
+          <!-- 상세 피드백 -->
+          <div id="feedbackDiv" class="card shadow-sm rounded-16 p-3 card-wide">
+            <h5 class="fw-semibold">상세 피드백</h5>
+            <div id="feedbackContent"></div>
           </div>
 
-          <div class="card shadow-sm rounded-16">
-            <div class="card-body">
-              <h3 class="h6 fw-semibold mb-3">상세 피드백</h3>
-              <div id="feedbackContent" class="small text-secondary"></div>
-            </div>
+          <!-- 자세 피드백 텍스트 -->
+          <div
+            id="detailFeedbackDiv"
+            class="card shadow-sm rounded-16 p-3 card-wide"
+          >
+            <h5 class="fw-semibold">자세 피드백 (텍스트)</h5>
+            <div id="detailFeedbackText"></div>
           </div>
 
-          <div class="d-flex gap-2 mt-4">
+          <!-- 버튼 -->
+          <div class="d-flex gap-2">
             <button
               class="btn btn-outline-secondary flex-fill"
               onclick="downloadResult()"
