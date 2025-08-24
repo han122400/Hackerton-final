@@ -13,7 +13,7 @@ TABLE = "profiles"
 
 class Profile(BaseModel):
     name: str
-    email: str
+    email: str = None
     phone: str = None
     education: str = None
     experience: str = None
@@ -26,14 +26,41 @@ async def save_profile(profile: Profile):
             "apikey": SUPABASE_KEY,
             "Authorization": f"Bearer {SUPABASE_KEY}",
             "Content-Type": "application/json",
-            "Prefer": "return=representation"
         }
-        response = requests.post(url, json=[profile.dict()], headers=headers)
+
+        # 기존 데이터 조회
+        query_url = f"{url}?name=eq.{profile.name}"
+        res = requests.get(query_url, headers=headers)
+        existing = res.json()
+
+        if existing:  # update
+            patch_url = f"{url}?name=eq.{profile.name}"
+            response = requests.patch(
+                patch_url,
+                json=profile.dict(),
+                headers={**headers, "Prefer": "return=representation"}  # ✅ 여기 추가
+            )
+        else:  # insert
+            response = requests.post(
+                url,
+                json=[profile.dict()],
+                headers={**headers, "Prefer": "return=representation"}
+            )
+
+        # 응답 처리
         if response.status_code >= 400:
             return JSONResponse(
                 status_code=response.status_code,
                 content={"ok": False, "error": response.text}
             )
+
+        # 응답이 204라면 JSON 없음
+        if response.status_code == 204 or not response.text.strip():
+            return {"ok": True, "data": None}
+
         return {"ok": True, "data": response.json()}
+
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
