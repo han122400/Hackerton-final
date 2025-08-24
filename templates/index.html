@@ -83,13 +83,31 @@
           max-width: 1320px;
         }
       }
+        .logo-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .icon-rounded {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: block;
+      }
     </style>
   </head>
   <body>
-    <nav
-      class="navbar navbar-expand border-bottom sticky-top navbar-blur py-2"
-    >
-      <div class="container">
+       <nav class="navbar bg-white border-bottom sticky-top">
+
+      <div class="container-fluid d-flex align-items-center gap-2">
+        <a href="/" aria-label="홈으로">
+          <img
+            src="/static/image/COD.png"
+            alt="홈 아이콘"
+            class="icon-rounded"
+          />
+        </a>
         <a class="navbar-brand fw-bold" href="/">면접 연습</a>
         <div class="navbar-nav ms-auto align-items-center" style="margin-right: 20px;">
         <a class="nav-result-btn" href="/result-log">면접기록 조회</a>
