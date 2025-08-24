@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 
+
 # API 라우터들 import
 from server.interview import router as interview_router
 from server.camera_analyzer import router as camera_router
@@ -74,6 +75,10 @@ async def cover_letter_page(request: Request):
 @app.get("/job-detail", response_class=HTMLResponse)
 async def job_detail_page(request: Request):
     return templates.TemplateResponse("job-detail.html", {"request": request})
+
+@app.get("/result-save", response_class=HTMLResponse)
+async def result_save_page(request: Request):
+    return templates.TemplateResponse("result-save.html", {"request": request})
 
 # API 라우터 등록
 app.include_router(interview_router, prefix="/api")
