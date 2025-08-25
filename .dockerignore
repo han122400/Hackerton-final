@@ -1,13 +1,16 @@
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.env
-.git
-.gitignore
-.vscode/
-.mypy_cache/
-.pytest_cache/
-node_modules/
-dist/
-build/
+# 이미 쓰고 있는 항목 + 추가
+*.log
+.env.*
+.idea/
+**/node_modules/
+.venv/
+venv/
+*.db
+*.sqlite3
+*.h5 *.pt *.pth *.ckpt *.onnx
+*.mp4 *.avi *.zip *.tar *.gz
+
+# (선택) 이미지/데이터가 크면 폴더 단위로 제외
+static/image/raw/
+datasets/
+checkpoints/
