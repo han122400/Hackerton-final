@@ -497,6 +497,13 @@ async function toggleRecording() {
   mediaRecorder.onstop = async () => {
     micStream.getTracks().forEach((t) => t.stop())
     const blob = new Blob(recordedChunks, { type: 'audio/webm' })
+
+    console.log('녹음 완료:', {
+      size: blob.size,
+      type: blob.type,
+      chunks: recordedChunks.length,
+    })
+
     const fd = new FormData()
     fd.append('audio', blob, 'answer.webm')
 
@@ -504,12 +511,27 @@ async function toggleRecording() {
     if (sttBox) sttBox.textContent = '분석 중…'
 
     try {
+      console.log('STT 분석 요청 시작...')
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
-      const data = await res.json().catch(() => ({}))
-      if (sttBox) sttBox.textContent = data.text || '분석 결과가 없습니다.'
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      }
+
+      const data = await res.json()
+      console.log('STT 응답:', data)
+
+      if (data.error) {
+        console.error('STT 서버 오류:', data.error)
+        if (sttBox) sttBox.textContent = `분석 실패: ${data.error}`
+      } else {
+        const text = data.text || '인식된 음성이 없습니다.'
+        if (sttBox) sttBox.textContent = text
+        console.log('STT 결과:', text)
+      }
     } catch (e) {
-      console.error(e)
-      if (sttBox) sttBox.textContent = '분석 실패'
+      console.error('STT 요청 오류:', e)
+      if (sttBox) sttBox.textContent = `분석 실패: ${e.message}`
     }
   }
 
